@@ -11,6 +11,7 @@
       "Delete": "删除配置",
       "DeleteHelp": "删除配置\n按住 Ctrl 键启用",
       "BareProfileNote": "基础配置文件只是为了最基础的运行，您可以复制它进行编辑",
+      "ConfigOverridesActiveNote": "IPC 配置覆盖生效时，配置已锁定。请停止 AutoDuty 后再编辑。",
       "NewProfileName": "新配置文件名称",
       "ChangeProfileName": "更改配置文件名称"
     },
@@ -26,10 +27,12 @@
       "TransparentBG": "使用透明背景",
       "ShowActionText": "显示运行状况",
       "AnchorBottom": "固定在底部",
+      "ButtonsHeader": "以下是悬浮窗/主界面中可用的按钮",
       "OverrideButtons": "覆盖悬浮窗按钮",
       "OverrideButtonsHelp": "默认情况下，悬浮窗按钮会在其配置启用时自动启用\n此选项将允许您选择启用哪些按钮",
       "ShowMainWindowOnStartup": "启动时显示主窗口",
-      "SliderInputs": "滑块输入"
+      "SliderInputs": "滑块输入",
+      "LoopActionsOpenByDefault": "默认展开已启用的循环动作"
     },
     "Duty": {
       "Header": "副本配置设置",
@@ -80,6 +83,8 @@
       "ReturnTimes": "次",
       "DrawPath": "绘制路径中的下一步",
       "DrawPathSteps": "绘制 X 步",
+      "DisableRenderWhileActive": "运行时禁用渲染",
+      "DisableRenderWhileActiveHelp": "AutoDuty 运行时禁用 3D 世界渲染",
       "W2W": {
         "Header": "> W2W配置 <",
         "TreatUnsyncAsW2W": "将非同步视为 W2W",
@@ -97,10 +102,34 @@
         "UsingAltBossHelp": "使用 BossMod 以外的机制插件。"
       }
     },
+    "PreLoop": {
+      "Header": "循环前初始化设置",
+      "Enable": "启用",
+      "ExecuteCommands": "在所有循环开始时执行命令",
+      "ExecuteCommandsHelp": "在所有循环开始时执行命令\n例如：{0}",
+      "BetweenLoopNote": "如果启用了循环间设置，以下操作也会在循环间执行（当前{0}）",
+      "RetireTo": "返回至 ",
+      "ActionsCopyFromBetweenLoop": "从循环间复制动作"
+    },
+    "BetweenLoop": {
+      "Header": "循环间设置",
+      "Enable": "启用",
+      "RunOnLastLoop": "在最后一次循环时运行",
+      "ArmoireEntrustHelp": "将在循环间将物品存入收藏柜。",
+      "GlamourEntrust": "存入幻化衣橱",
+      "GlamourEntrustHelp": "将在循环间将物品存入幻化衣橱。",
+      "RegisterTripleTriadCards": "登记九宫幻卡",
+      "SellTripleTriadCards": "出售九宫幻卡",
+      "EnableAutoRetainerMultiMode": "启用 AutoRetainer 多模式",
+      "EnableAutoRetainerMultiModeHelp": "运行一次 AR 多模式，依次处理所有角色，然后返回继续运行副本",
+      "EnableAutoRetainer": "启用 AutoRetainer 集成"
+    },
     "Termination": {
       "Header": "循环终止设置",
       "Enable": "启用",
+      "Help": "只要分配了足够的循环次数，满足以下条件时循环将停止。",
       "StopAtLevel": "达到指定等级时停止",
+      "StopAtILevel": "达到物品等级时停止循环",
       "StopAtLevelHelp": "当满足这些条件时，循环将停止",
       "StopNoRestedXP": "休息经验耗尽时停止",
       "StopNoRestedXPHelp": "当满足这些条件时，循环将停止",
@@ -112,10 +141,16 @@
       "Quantity": "数量",
       "AddItem": "添加物品",
       "StopOnlyWhenAllItems": "仅在获得所有项目后停止循环",
+      "StopWhenDutyGathered": "当前副本的所有幻化物品收集完成时停止循环",
+      "StopWhenDutyGatheredHelp": "当前副本的幻化物品收集完成后，循环将停止。",
+      "StopWhenDutyGatheredSetsOnly": "仅套装",
       "StopBLUSpell": "习得青魔法时停止循环",
       "SelectBLUSpell": "选择青魔法",
       "StopOnlyWhenAllSpells": "仅当习得所有青魔法时停止循环",
+      "StopWhenInventoryFull": "背包空间不足时停止循环",
+      "StopWhenInventoryFullSlots": "剩余背包格数：",
       "ExecuteCommandsOnTermination": "在所有循环终止时执行命令",
+      "ExecuteCommandsOnTerminationHelp": "在所有循环终止时执行命令\n例如：{0}",
       "PlaySoundOnCompletion": "完成所有循环后播放声音: ",
       "OnCompletionOfAllLoops": "在完成所有循环后： ",
       "KeepTerminationActive": "执行后保留终止选项 "
@@ -159,6 +194,12 @@
       "ResynchronizeStep": "重新同步步骤"
     },
     "Enums": {
+      "Positional": {
+        "Any": "任意",
+        "Flank": "侧面",
+        "Rear": "背面",
+        "Front": "正面"
+      },
       "RetireLocation": {
         "Inn": "旅馆",
         "Apartment": "公寓",
@@ -237,6 +278,34 @@
         "Red_Mage": "赤魔法师",
         "Pictomancer": "绘灵法师",
         "Blue_Mage": "青魔法师"
+      },
+      "MultiModeType": {
+        "Retainers": "雇员",
+        "Submersibles": "潜水艇",
+        "Everything": "全部"
+      },
+      "ConditionType": {
+        "VariantPath": "路径",
+        "Distance": "距离",
+        "ObjectData": "对象",
+        "ItemCount": "物品",
+        "Job": "职业",
+        "ActionStatus": "动作状态",
+        "ConditionFlag": "条件标记",
+        "Collision": "碰撞",
+        "ToDo": "待办",
+        "Not": "非",
+        "Or": "或",
+        "And": "且"
+      },
+      "ObjectDataProperty": {
+        "EventState": "事件状态",
+        "IsTargetable": "可成为目标"
+      },
+      "DistanceLocationTypes": {
+        "Player": "玩家",
+        "Object": "对象",
+        "Location": "位置"
       }
     },
     "Dev": {

@@ -37,6 +37,9 @@
     "LevelingModeStatus": "当前练级状态：等级 {0} (装等 {1})",
     "SelectSupportTrust": "请选择剧情辅助器、亲信战友、冒险者小队或常规模式中的一项\n以填充任务列表",
     "CurrentGearset": "当前套装",
+    "CurrentVariantPath": "当前多变迷宫路径",
+    "DungeonsRemaining": "剩余副本数：{0}",
+    "DungeonsRemainingExplanation": "这是在达到每日 100 次副本上限前，预计还能运行的副本数量。",
     "Busy": "忙碌中...",
     "RequiresVNavmeshAlt": "AutoDuty 需要安装并加载 vnavmesh 插件以实现正确的导航和移动。请添加第三方仓库：\nhttps://raw.githubusercontent.com/AtmoOmen/DalamudPlugins/main/pluginmaster.json",
     "RequiresBossModAlt": "AutoDuty 需要安装并加载 BossMod 插件以正确处理机制。请添加第三方仓库：\nhttps://raw.githubusercontent.com/44451516/ffxiv_bossmod/CN/pluginmaster.json",
@@ -54,13 +57,60 @@
       "Trial": "讨伐歼灭战（排本）",
       "Raid": "大型任务（排本）",
       "Variant": "多变迷宫",
-      "NoviceHall": "初学者学堂"
+      "NoviceHall": "初学者学堂",
+      "Crucible": "熔炉"
     },
     "LevelingModes": {
       "None": "无",
       "Support": "剧情辅助器",
       "Trust_Group": "亲信练级",
       "Trust_Solo": "玩家练级"
+    },
+    "Crucible": {
+      "Team": "熔炉队伍",
+      "Familiars": "使魔 {0}/{1}",
+      "Familiar": "使魔",
+      "Rank": "等级",
+      "CustomFull": "队伍已满（最多 {0} 个）\n取消勾选一个后才能选择其他使魔",
+      "ClearRanks": "清除已保存的等级",
+      "ClearRanksHelp": "忘记已保存的等级\n按住 Ctrl 点击",
+      "NoFamiliars": "尚未读取到任何使魔。请在 Lauda 处打开队伍或图鉴，以便 AutoDuty 读取数据。",
+      "Menus": "棋盘菜单",
+      "TableLegend": "阴影部分：此模式选择的队伍 · 将鼠标悬停在名称上查看属性",
+      "TableLegendCustom": "勾选部分：你选择的队伍 · 将鼠标悬停在名称上查看属性",
+      "NotSeen": "尚未读取等级\n下次设置队伍时从图鉴读取",
+      "Modes": {
+        "Recommended": "推荐",
+        "Leveling": "练级",
+        "Custom": "自定义"
+      },
+      "ModesHelp": {
+        "Recommended": "选择等级最高的使魔\n等级相同时优先选择属性更好的",
+        "Leveling": "选择等级最低的使魔，优先选择经验最少的\n相同顺序也用于决定每场战斗出战的使魔",
+        "Custom": "选择下方勾选的使魔\n最多 10 个"
+      },
+      "Toggles": {
+        "FightPicks": "战斗选择",
+        "Loot": "战利品与结果",
+        "Treasure": "宝藏",
+        "Shop": "商店",
+        "Rest": "营地休息",
+        "Items": "治疗物品",
+        "MenusWithoutRun": "不运行 AutoDuty，仅运行菜单（测试）"
+      },
+      "TogglesHelp": {
+        "FightPicks": "每场战斗最多选择 3 个使魔并开始战斗\n被击倒的使魔会跳过",
+        "Loot": "战斗后获取所有战利品\n在结果画面点击继续",
+        "Treasure": "获取一件宝藏：优先治疗，其次防御，最后伤害",
+        "Shop": "使用金币购买治疗物品、Beast Gear，然后购买一份饲料\n完成后离开商店",
+        "Rest": "让最多 2 个生命值低于 60% 的使魔休息\n如果没有选择使魔，则获得 90% 的自我治疗",
+        "Items": "生命值较低时使用治疗物品\n战斗中低于 40% · 棋盘上低于 60%",
+        "MenusWithoutRun": "用于无路径测试\n与 Lauda 对话设置队伍、挑战棋盘并开始\n在棋盘上，以上菜单会运行，而你可以自行移动"
+      }
+    },
+    "Playlist": {
+      "DeleteHelp": "删除已保存的自定义队列\n按住 Ctrl 键启用",
+      "SaveHelp": "使用当前填写的名称保存自定义队列\n按住 Ctrl 键启用"
     }
   }
 }

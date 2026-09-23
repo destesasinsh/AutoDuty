@@ -13,8 +13,10 @@
                                        "AutoRetainer":  "自动雇员 (支持自动上交军票筹备与清理背包)",
                                        "Avarice":  "显示身位指示器",
                                        "Lifestream":  "强大的自动传送工具",
+                                       "Pandora":  "自动开启宝箱与切换坦克姿态",
                                        "Gearsetter":  "自动推荐并更换最优装备",
-                                       "Stylist":  "自动推荐并更换最优装备"
+                                       "Stylist":  "自动推荐并更换最优装备",
+                                       "GlamourLog":  "管理幻化衣橱和收藏柜"
                                    },
                     "Title":  "信息",
                     "SetupGuideIntro":  "有关 AutoDuty 及其依赖项的一般设置帮助，请查看以下的设置指南以获取更多信息：",

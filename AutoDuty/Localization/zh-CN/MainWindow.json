@@ -19,7 +19,8 @@
                                     "Apartment":  "公寓",
                                     "PersonalHome":  "个人房屋",
                                     "FCEstate":  "部队房屋",
-                                    "TripleTriadTrader":  "幻卡回收"
+                                    "TripleTriadTrader":  "幻卡回收",
+                                    "Crucible":  "熔炉"
                                 },
                        "TT":  {
                                   "RegisterCards":  "使用幻卡",

@@ -8,7 +8,19 @@
                                    "Repair":  "修理",
                                    "Equip":  "装备",
                                    "Coffers":  "装备箱",
-                                   "TripleTriad":  "幻卡"
+                                   "TripleTriad":  "幻卡",
+                                   "Armoire":  "收藏柜",
+                                   "Glamour":  "幻化",
+                                   "AutoRetainer":  "雇员",
+                                   "AutoRetainerMulti":  "AR 多模式",
+                                   "Discard":  "丢弃",
+                                   "TripleTriadUse":  "使用九宫幻卡",
+                                   "TripleTriadSell":  "出售九宫幻卡",
+                                   "ConsumeItems":  "消耗品",
+                                   "ExecuteCommands":  "命令",
+                                   "Wait":  "等待",
+                                   "PlaySound":  "声音",
+                                   "Retire":  "返回"
                                },
                     "Tooltip":  {
                                     "Desynth":  "点击分解背包中的所有可分解物品",
