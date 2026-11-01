@@ -26,5 +26,5 @@ if errorlevel 1 (
   echo [x] 编译失败
   exit /b 1
 )
-echo [ok] 输出: %~dp0AutoDuty/bin/Debug/AutoDuty.dll
+echo [ok] 编译完成，产物在 %~dp0AutoDuty\bin\ 下
 endlocal

@@ -60,13 +60,12 @@ jobs:
       - name: Pack latest.zip
         shell: pwsh
         run: |
-          $out = "AutoDuty/bin/Release"
-          if (-not (Test-Path $out)) { throw "构建输出不存在: $out" }
-          $json = Join-Path $out "AutoDuty.json"
-          $data = Get-Content $json -Raw | ConvertFrom-Json
-          $data | Add-Member -NotePropertyName AssemblyVersion -NotePropertyValue $env:NEW_VERSION -Force
-          $data | ConvertTo-Json -Depth 8 | Set-Content $json -Encoding utf8
-          Compress-Archive -Path "$out/*" -DestinationPath "latest.zip" -Force
+          # Dalamud.NET.Sdk 打包时会把插件产物放进 bin/Release/<Name>/latest.zip，
+          # 里面是文件在根目录、带 Localization、且 AssemblyVersion 已按 csproj 写好，
+          # 直接拿来用，不要再把整个输出目录压缩一遍（那样会多套一层目录）。
+          $pkg = "AutoDuty/bin/Release/AutoDuty/latest.zip"
+          if (-not (Test-Path $pkg)) { throw "找不到 Dalamud 打包产物: $pkg" }
+          Copy-Item $pkg "latest.zip" -Force
           Get-Item latest.zip | Select-Object Name, Length
 
       - name: Commit version bump
