@@ -9,6 +9,7 @@ namespace AutoDuty.Helpers
     using ECommons.GameHelpers;
     using ECommons.Throttlers;
     using FFXIVClientStructs.FFXIV.Client.Game;
+    using FFXIVClientStructs.FFXIV.Client.Game.UI;
     using IPC;
     using Managers;
 
@@ -241,6 +242,10 @@ namespace AutoDuty.Helpers
                 {
                     joinedQueueThisAttempt = true;
                     Config.QueuedCount++;
+
+                    byte queuedRoulette = QueuedRouletteId();
+                    Svc.Log.Info($"[MentorRoulette] entered queue (roulette id {(queuedRoulette == 0 ? "?" : queuedRoulette.ToString())})");
+
                     SetState(MentorRouletteState.Queueing, "已进入队列，等待弹出");
                 }
 
@@ -264,6 +269,16 @@ namespace AutoDuty.Helpers
                     Notify($"检测到排本惩罚（放弃任务的 30 分钟限制），等到 {CooldownUntil:HH:mm} 再排。");
                 }
             }
+        }
+
+        private static unsafe byte QueuedRouletteId()
+        {
+            ContentsFinder* contentsFinder = ContentsFinder.Instance();
+            if (contentsFinder == null)
+                return 0;
+
+            var queueInfo = contentsFinder->GetQueueInfo();
+            return queueInfo == null ? (byte)0 : queueInfo->QueuedContentRouletteId;
         }
 
         private static void OnEnteredDuty()

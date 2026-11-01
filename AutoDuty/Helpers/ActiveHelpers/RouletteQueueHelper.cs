@@ -12,14 +12,17 @@ namespace AutoDuty.Helpers
 {
     using System;
     using System.Collections.Generic;
+    using System.Text;
     using Configurations;
     using FFXIVClientStructs.Interop;
     using FFXIVClientStructs.STD;
 
     /// <summary>
     /// 排“随机任务”（例如导师随机任务）的 ActiveHelper。
+    ///
     /// 与 QueueHelper 的区别：QueueHelper 排的是具体副本（ContentFinderCondition），
-    /// 这里走的是任务搜索器列表里的随机任务条目。
+    /// 这里用 AgentContentsFinder.OpenRouletteDuty 直接把某个 ContentRoulette 加载进任务搜索器再点加入。
+    /// 原生接口用不了时退回“按名字在列表里选中”的兜底路径。
     /// </summary>
     internal unsafe class RouletteQueueHelper : ActiveHelperBase<RouletteQueueHelper, LoopActionConfigBare>
     {
@@ -32,16 +35,19 @@ namespace AutoDuty.Helpers
 
         private AddonContentsFinder* _addon;
 
+        /// <summary>导师随机任务在 ContentRoulette 里的行号。</summary>
+        internal const uint MENTOR_ROULETTE_ID = 9;
+
+        internal static uint ResolveRouletteId(uint configured) =>
+            configured == 0 ? MENTOR_ROULETTE_ID : configured;
+
         internal static void Invoke(uint rouletteRowId)
         {
-            _rouletteRowId = rouletteRowId;
+            _rouletteRowId = ResolveRouletteId(rouletteRowId);
             _joinFired     = false;
             _openAttempts  = 0;
             Instance.Start();
         }
-
-        internal static void Invoke() =>
-            Invoke(8);
 
         internal override void Stop()
         {
@@ -56,7 +62,7 @@ namespace AutoDuty.Helpers
                 try
                 {
                     ContentRoulette? row = Svc.Data.GetExcelSheet<ContentRoulette>().GetRowOrDefault(_rouletteRowId);
-                    if (row != null)
+                    if (row.HasValue)
                         return row.Value.Name.ToString().Trim();
                 }
                 catch (Exception ex)
@@ -95,7 +101,6 @@ namespace AutoDuty.Helpers
             if (ContentsFinderConfirm())
                 return;
 
-            // 已经在排队了，什么都不用做，等弹出确认框
             if (Conditions.Instance()->InDutyQueue)
             {
                 _joinFired = true;
@@ -125,20 +130,52 @@ namespace AutoDuty.Helpers
 
                 _openAttempts++;
 
-                if (_openAttempts <= 3)
+                if (_openAttempts <= 4)
                 {
-                    Svc.Log.Debug($"{nameof(RouletteQueueHelper)}: opening ContentsFinder (attempt {_openAttempts})");
-                    AgentContentsFinder.Instance()->Show();
+                    Svc.Log.Debug($"{nameof(RouletteQueueHelper)}: OpenRouletteDuty({_rouletteRowId}) attempt {_openAttempts}");
+                    AgentContentsFinder.Instance()->OpenRouletteDuty((byte)_rouletteRowId);
                 }
                 else
                 {
-                    Svc.Log.Debug($"{nameof(RouletteQueueHelper)}: opening ContentsFinder via command");
+                    Svc.Log.Debug($"{nameof(RouletteQueueHelper)}: falling back to /dutyfinder command");
                     Svc.Commands.ProcessCommand("/dutyfinder");
                 }
 
                 return;
             }
 
+            if (_joinFired)
+                return;
+
+            // 首选：原生接口已经把随机任务选好了，直接点“加入”
+            if (IsRouletteSelected())
+            {
+                Svc.Log.Debug($"{nameof(RouletteQueueHelper)}: roulette {_rouletteRowId} selected, joining");
+                _joinFired = true;
+                AddonHelper.FireCallBack((AtkUnitBase*)this._addon, true, 12, 0);
+                return;
+            }
+
+            // 兜底：按名字在列表里找条目并选中
+            this.SelectByName();
+        }
+
+        private static bool IsRouletteSelected()
+        {
+            try
+            {
+                AgentContentsFinder* agent = AgentContentsFinder.Instance();
+                return agent != null && agent->HasRouletteSelected;
+            }
+            catch (Exception ex)
+            {
+                Svc.Log.Debug($"{nameof(RouletteQueueHelper)}: HasRouletteSelected failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        private void SelectByName()
+        {
             string rouletteName = RouletteName;
             if (rouletteName.Length == 0)
             {
@@ -170,8 +207,7 @@ namespace AutoDuty.Helpers
                 if (text.Length == 0)
                     continue;
 
-                if (text.Contains(rouletteName, StringComparison.Ordinal) ||
-                    rouletteName.Contains(text.Replace("...", string.Empty).Trim(), StringComparison.Ordinal) && text.Length > 4)
+                if (text.Contains(rouletteName, StringComparison.Ordinal))
                 {
                     index = i;
                     break;
@@ -182,28 +218,15 @@ namespace AutoDuty.Helpers
             {
                 if (EzThrottler.Throttle("RouletteQueueHelper-NoMatch", 5000))
                     Svc.Log.Debug($"{nameof(RouletteQueueHelper)}: roulette '{rouletteName}' not found in duty list ({items.Count} items)");
+
                 return;
             }
 
-            string? selectedName = null;
-            try
-            {
-                selectedName = this._addon->AtkValues[18].GetValueAsString()
-                                   .Replace("\u0002\u001a\u0002\u0002\u0003", string.Empty)
-                                   .Replace("\u0002\u001a\u0002\u0001\u0003", string.Empty)
-                                   .Replace("\u0002\u001f\u0001\u0003", "\u2013");
-            }
-            catch (Exception ex)
-            {
-                Svc.Log.Debug($"{nameof(RouletteQueueHelper)}: reading selected name failed: {ex.Message}");
-            }
+            string selectedName = GetSelectedName();
 
-            if (!string.IsNullOrEmpty(selectedName) && selectedName!.Contains(rouletteName, StringComparison.Ordinal))
+            if (selectedName.Length > 0 && selectedName.Contains(rouletteName, StringComparison.Ordinal))
             {
-                if (_joinFired)
-                    return;
-
-                Svc.Log.Debug($"{nameof(RouletteQueueHelper)}: joining '{rouletteName}'");
+                Svc.Log.Debug($"{nameof(RouletteQueueHelper)}: joining selected '{rouletteName}'");
                 _joinFired = true;
                 AddonHelper.FireCallBack((AtkUnitBase*)this._addon, true, 12, 0);
                 return;
@@ -219,11 +242,27 @@ namespace AutoDuty.Helpers
 
             int selectIndex = index + 1 - headers;
 
-            Svc.Log.Debug($"{nameof(RouletteQueueHelper)}: selecting '{rouletteName}' at list index {index} (arg {selectIndex}, selected '{selectedName}')");
+            Svc.Log.Debug($"{nameof(RouletteQueueHelper)}: selecting '{rouletteName}' at list index {index} (arg {selectIndex})");
             AddonHelper.FireCallBack((AtkUnitBase*)this._addon, true, 3, selectIndex);
         }
 
-        /// <summary>调试用：把任务搜索器里当前的列表条目打印出来，方便核对随机任务在列表里的位置/名字。</summary>
+        private string GetSelectedName()
+        {
+            try
+            {
+                return this._addon->AtkValues[18].GetValueAsString()
+                           .Replace("\u0002\u001a\u0002\u0002\u0003", string.Empty)
+                           .Replace("\u0002\u001a\u0002\u0001\u0003", string.Empty)
+                           .Replace("\u0002\u001f\u0001\u0003", "\u2013");
+            }
+            catch (Exception ex)
+            {
+                Svc.Log.Debug($"{nameof(RouletteQueueHelper)}: reading selected name failed: {ex.Message}");
+                return string.Empty;
+            }
+        }
+
+        /// <summary>调试用：把任务搜索器里当前的列表条目打印出来。</summary>
         internal static string DumpList()
         {
             if (!GenericHelpers.TryGetAddonByName("ContentsFinder", out AddonContentsFinder* addon) ||
@@ -241,8 +280,9 @@ namespace AutoDuty.Helpers
                                             items.Add(*p.Value);
                                     });
 
-            System.Text.StringBuilder sb = new();
-            sb.AppendLine($"列表条目 {items.Count} 个，当前选中 index={dutyList->SelectedItemIndex}");
+            StringBuilder sb = new();
+            sb.AppendLine($"列表条目 {items.Count} 个，SelectedItemIndex={dutyList->SelectedItemIndex}");
+            sb.AppendLine($"HasRouletteSelected={IsRouletteSelected()}，RouletteRowId={_rouletteRowId}");
 
             for (int i = 0; i < items.Count; i++)
                 sb.AppendLine($"[{i}] u0={items[i].UIntValues[0]} '{GetItemText(items[i])}'");

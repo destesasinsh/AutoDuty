@@ -299,7 +299,7 @@ internal static class MentorTab
         ImGui.SetNextItemWidth(160);
         if (ImGui.InputInt(Loc.Get("MentorTab.Settings.RouletteRow"), ref roulette))
         {
-            cfg.RouletteRowId = (uint)Math.Clamp(roulette, 1, 100);
+            cfg.RouletteRowId = (uint)Math.Clamp(roulette, 0, 100);
             ConfigurationProfileV2.Save();
         }
 
@@ -308,6 +308,8 @@ internal static class MentorTab
 
     private static string RouletteName(uint rowId)
     {
+        rowId = RouletteQueueHelper.ResolveRouletteId(rowId);
+
         try
         {
             Lumina.Excel.Sheets.ContentRoulette? row = Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.ContentRoulette>().GetRowOrDefault(rowId);

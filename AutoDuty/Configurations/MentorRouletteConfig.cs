@@ -53,8 +53,11 @@ public class MentorRouletteConfig
     /// <summary>状态变化时在聊天窗口提示。</summary>
     public bool ChatNotify { get; set; } = true;
 
-    /// <summary>要排的随机任务行号（ContentRoulette）。导师随机任务默认 8。</summary>
-    public uint RouletteRowId { get; set; } = 8;
+    /// <summary>
+    /// 要排的随机任务行号（ContentRoulette）。导师随机任务 = 9，0 = 自动解析。
+    /// 想扩展到其他随机（主线随机 / 团随 / 日随）改这里即可。
+    /// </summary>
+    public uint RouletteRowId { get; set; } = 9;
 
     [JsonIgnore] public int QueuedCount    { get; set; } = 0;
     [JsonIgnore] public int JoinedCount    { get; set; } = 0;
