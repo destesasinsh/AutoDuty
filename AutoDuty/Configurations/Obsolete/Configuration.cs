@@ -1,4 +1,4 @@
-namespace AutoDuty.Configurations;
+namespace AutoDuty.Configurations.Obsolete;
 
 using System;
 using System.Collections.Generic;

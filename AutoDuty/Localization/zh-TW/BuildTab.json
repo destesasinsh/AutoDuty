@@ -39,6 +39,10 @@
     "MinusZ": "-Z",
     "PlusX": "+X",
     "MinusX": "-X",
-    "YDiff": "Y-差值: "
+    "XDiff": "X-差值: ",
+    "YDiff": "Y-差值: ",
+    "ZDiff": "Z-差值: ",
+    "Diff": "差值: ",
+    "NoPartyCoherency": "停用隊伍一致性"
   }
 }

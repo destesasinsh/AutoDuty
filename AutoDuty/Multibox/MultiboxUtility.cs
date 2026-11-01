@@ -134,14 +134,18 @@ public static class MultiboxUtility
 
     internal static class Server
     {
-        public const             int             MAX_SERVERS   = 3;
+        public const  int MAX_SERVERS   = 8;
+
         private static readonly  StreamString?[] streams       = new StreamString?[MAX_SERVERS];
         internal static readonly ClientInfo?[]   clients       = new ClientInfo?[MAX_SERVERS];
-        private static readonly  Queue<string>[] messageQueues = [new(), new(), new()];
+        private static readonly  Queue<string>[] messageQueues = [..Enumerable.Range(0, MAX_SERVERS).Select<int,Queue<string>>(x => new Queue<string>())];
 
         internal static readonly DateTime[] keepAlives    = new DateTime[MAX_SERVERS];
         internal static readonly bool[]     stepConfirms  = new bool[MAX_SERVERS];
         private static readonly  bool[]     deathConfirms = new bool[MAX_SERVERS];
+
+        public static int          ConnectedClientCounts => clients.Count(ci => ci != null);
+        public static ClientInfo[] ConnectedClients      => clients.Where(ci => ci != null).Cast<ClientInfo>().ToArray();
 
         private static ITransport?              transport;
         private static CancellationTokenSource? serverCts;
@@ -165,8 +169,9 @@ public static class MultiboxUtility
         {
             try
             {
-                if (transport != null) return;
-                    
+                if (transport != null) 
+                    return;
+                
                 transport = Config.TransportType switch 
                 {
                     TransportType.NamedPipe => new NamedPipeTransport(Config.PipeName),
@@ -205,41 +210,14 @@ public static class MultiboxUtility
                 }
 
                 if (!InDungeon)
-                {
-                    Chat.ExecuteCommand("/partycmd breakup");
-
-                    SchedulerHelper.ScheduleAction("MultiboxServer PartyBreakup Accept", () =>
-                                                                                         {
-                                                                                             unsafe
-                                                                                             {
-                                                                                                 Utf8String inviterName = InfoProxyPartyInvite.Instance()->InviterName;
-
-                                                                                                 if (UniversalParty.Length <= 1)
-                                                                                                 {
-                                                                                                     SchedulerHelper.DescheduleAction("MultiboxServer PartyBreakup Accept");
-                                                                                                     return;
-                                                                                                 }
-
-                                                                                                 if (GenericHelpers.TryGetAddonByName("SelectYesno", out AtkUnitBase* addonSelectYesno) &&
-                                                                                                     GenericHelpers.IsAddonReady(addonSelectYesno))
-                                                                                                 {
-                                                                                                     AddonMaster.SelectYesno yesno = new(addonSelectYesno);
-                                                                                                     if (yesno.Text.Contains(inviterName.ToString()))
-                                                                                                         yesno.Yes();
-                                                                                                     else
-                                                                                                         yesno.No();
-                                                                                                 }
-
-                                                                                                 if (GenericHelpers.TryGetAddonByName("Social", out AtkUnitBase* addonSocial) &&
-                                                                                                     GenericHelpers.IsAddonReady(addonSocial))
-                                                                                                 {
-                                                                                                     ErrorLog("/partycmd breakup opened the party menu instead");
-                                                                                                     SchedulerHelper.DescheduleAction("MultiboxServer PartyBreakup Accept");
-                                                                                                     return;
-                                                                                                 }
-                                                                                             }
-                                                                                         }, 500, false);
-                }
+                    unsafe
+                    {
+                        if(InfoProxyCrossRealm.IsLocalPlayerInParty())
+                            if (InfoProxyCrossRealm.IsLocalPlayerPartyLeader())
+                                InfoProxyPartyMember.Instance()->DisbandParty();
+                            else
+                                InfoProxyPartyMember.Instance()->LeaveParty();
+                    }
 
                 DebugLog("Server stopped");
             }
@@ -322,7 +300,7 @@ public static class MultiboxUtility
                             DebugLog($"Client {index} closed the connection.");
                             return;
                         case CLIENT_CID_KEY:
-                            clients[index] = new ClientInfo(ulong.Parse(split[1]), split[2], ushort.Parse(split[3]));
+                            clients[index] = new ClientInfo(index, ulong.Parse(split[1]), split[2], ushort.Parse(split[3]));
 
                             _ = Svc.Framework.RunOnTick(() =>
                                                         {
@@ -427,9 +405,9 @@ public static class MultiboxUtility
 
         public static void CheckDeaths()
         {
-            if (deathConfirms.All(x => x) && Player.IsDead)
+            if (ConnectedClients.All(x => deathConfirms[x.Index]) && Player.IsDead)
             {
-                for (int i = 0; i < deathConfirms.Length; i++)
+                for(int i = 0; i < deathConfirms.Length; i++)
                     deathConfirms[i] = false;
 
                 DebugLog("All dead");
@@ -443,7 +421,7 @@ public static class MultiboxUtility
 
         public static void CheckStepProgress()
         {
-            if((Plugin.Stage != Stage.Looping && Plugin.indexer >= 0 && Plugin.indexer < Plugin.Actions.Count && Plugin.Actions[Plugin.indexer].Tag == ActionTag.Treasure || stepConfirms.All(x => x)) && stepBlock)
+            if((Plugin.Stage != Stage.Looping && Plugin.indexer >= 0 && Plugin.indexer < Plugin.Actions.Count && Plugin.Actions[Plugin.indexer].Tag == ActionTag.Treasure || ConnectedClients.All(x => stepConfirms[x.Index])) && stepBlock)
             {
                 for (int i = 0; i < stepConfirms.Length; i++)
                     stepConfirms[i] = false;
@@ -467,6 +445,7 @@ public static class MultiboxUtility
         {
             DebugLog("exiting duty");
             SendToAllClients(DUTY_EXIT_KEY);
+
             for (int i = 0; i < stepConfirms.Length; i++)
                 stepConfirms[i] = false;
         }
@@ -475,6 +454,7 @@ public static class MultiboxUtility
         {
             DebugLog("Queue initiated");
             SendToAllClients(DUTY_QUEUE_KEY);
+
             for (int i = 0; i < stepConfirms.Length; i++)
                 stepConfirms[i] = false;
             stepBlock = false;
@@ -486,11 +466,11 @@ public static class MultiboxUtility
         private static void SendToAllClients(string message)
         {
             DebugLog("Enqueuing to send: " + message);
-            foreach (Queue<string> queue in messageQueues)
-                queue.Enqueue(message);
+            foreach ((int index, ulong _, string _, ushort _) in ConnectedClients)
+                messageQueues[index].Enqueue(message);
         }
 
-        internal record ClientInfo(ulong CID, string CName, ushort WorldId)
+        internal record ClientInfo(int Index, ulong CID, string CName, ushort WorldId)
         {
             public string World => field ??= Svc.Data.Excel.GetSheet<World>().GetRow(this.WorldId).Name.GetText();
         }

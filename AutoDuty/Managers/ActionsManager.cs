@@ -467,6 +467,7 @@ namespace AutoDuty.Managers
 
         public void ExitDuty(PathAction action)
         {
+            taskManager.EnqueueDelay((int)Configuration.DutyConfig.WaitBeforeLeaving);
             taskManager.Enqueue(ExitDutyHelper.Invoke, "ExitDuty-Invoke");
             taskManager.Enqueue(() => ExitDutyHelper.State != ActionState.Running, "ExitDuty-WaitExitDutyRunning");
         }
@@ -738,12 +739,19 @@ namespace AutoDuty.Managers
 
         private static unsafe bool BossMoveCheck(Vector3 bossV3)
         {
-            if (Plugin.bossObject != null && Plugin.bossObject.Struct()->InCombat)
+            if (Plugin.DutyData?.bossObject != null)
             {
-                VNavmesh_IPCSubscriber.Path_Stop();
-                return true;
+                if (Plugin.DutyData.bossObject.Struct()->InCombat)
+                {
+                    VNavmesh_IPCSubscriber.Path_Stop();
+                    return true;
+                }
+                MovementHelper.Move(Plugin.DutyData.bossObject.Position);
+                return false;
             }
-            return MovementHelper.Move(bossV3);
+
+            MovementHelper.Move(bossV3);
+            return false;
         }
 
         private void BossLoot(List<IGameObject>? gameObjects, int index)
@@ -769,19 +777,18 @@ namespace AutoDuty.Managers
 
         public void Boss(PathAction action)
         {
-            Svc.Log.Info($"Starting Action Boss: {Plugin.bossObject?.Name.TextValue ?? "null"}");
+            Svc.Log.Info($"Starting Action Boss: {Plugin.DutyData?.bossObject?.Name.TextValue ?? "null"}");
             int index = 0;
             List<IGameObject>? treasureCofferObjects = null;
             Plugin.skipTreasureCoffer = false;
             this.StopForCombat(true, false);
-            taskManager.Enqueue(() => BossMoveCheck(action.Position), "Boss-MoveCheck");
-            if (Plugin.bossObject == null)
-                taskManager.Enqueue(() => (Plugin.bossObject = GetBossObject()) != null, "Boss-GetBossObject");
-            taskManager.Enqueue(() => Plugin.action      = $"Boss: {Plugin.bossObject?.Name.TextValue ?? ""}", "Boss-SetActionVar");
-            taskManager.Enqueue(() => Svc.Targets.Target = Plugin.bossObject,                                  "Boss-SetTarget");
-            taskManager.Enqueue(() => Svc.Condition[ConditionFlag.InCombat],                                   "Boss-WaitInCombat");
-            taskManager.Enqueue(() => BossCheck(),                                                             "Boss-BossCheck", new TaskManagerConfiguration(int.MaxValue));
-            taskManager.Enqueue(() => { Plugin.bossObject = null; },                                           "Boss-ClearBossObject");
+            taskManager.Enqueue(() => (Plugin.DutyData?.bossObject = GetBossObject(position: action.Position.LengthSquared() > float.Epsilon ? action.Position : null)) != null, "Boss-GetBossObject");
+            taskManager.Enqueue(() => BossMoveCheck(action.Position),                                                                                                            "Boss-MoveCheck");
+            taskManager.Enqueue(() => Plugin.action      = $"Boss: {Plugin.DutyData?.bossObject?.Name.TextValue ?? ""}",                                                         "Boss-SetActionVar");
+            taskManager.Enqueue(() => Svc.Targets.Target = Plugin.DutyData?.bossObject,                                                                                          "Boss-SetTarget");
+            taskManager.Enqueue(() => Svc.Condition[ConditionFlag.InCombat],                                                                                                     "Boss-WaitInCombat");
+            taskManager.Enqueue(() => BossCheck(),                                                                                                                               "Boss-BossCheck", new TaskManagerConfiguration(int.MaxValue));
+            taskManager.Enqueue(() => { Plugin.DutyData?.bossObject = null; },                                                                                                   "Boss-ClearBossObject");
 
             if (Configuration.DutyConfig.LootTreasure)
             {

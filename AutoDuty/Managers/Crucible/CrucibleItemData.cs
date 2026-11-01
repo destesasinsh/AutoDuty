@@ -1,12 +1,15 @@
 using System;
+using System.Collections.Generic;
+using AutoDuty.Configurations;
 using System.Linq;
 using ECommons.DalamudServices;
 using Lumina.Excel;
-using Lumina.Excel.Sheets;
+using Lumina.Excel.Sheets.Experimental;
+#pragma warning disable PendingExcelSchema
 
 namespace AutoDuty.Managers;
 
-internal static class CrucibleItemData
+public static class CrucibleItemData
 {
     public static readonly uint[] ShopHealing =
     [
@@ -99,6 +102,16 @@ internal static class CrucibleItemData
         4   // Chemist's Satchel
     ];
 
+    public static readonly uint[] ElemntalAxes =
+    [
+        38, // Flame-wreathed Axe
+        39, // Icebitten Axe
+        40, // Thunderstruck Axe
+        41, // Earthcrushed Axe
+        42, // Deepdrowned Axe
+        43  // Windblown Axe
+    ];
+
     public static readonly uint[] ShopFeed =
     [
         144, // G1 Primafodder
@@ -163,7 +176,7 @@ internal static class CrucibleItemData
         168  // White Scorpion Simular
     ];
 
-    public static readonly uint[] FightItems =
+    public static readonly uint[] FightHealingItems =
     [
         140, // Beast Potion Kit
         79,  // G4 Beast Potion
@@ -179,7 +192,7 @@ internal static class CrucibleItemData
         135  // Vampiric Essence
     ];
 
-    public static readonly uint[] BoardItems =
+    public static readonly uint[] BoardHealingItems =
     [
         79, // G4 Beast Potion
         78, // G3 Beast Potion
@@ -190,18 +203,85 @@ internal static class CrucibleItemData
         80  // G1 Crucible Ash
     ];
 
-    public static readonly uint[] TreasureOrder = ShopHealing.Concat(FightItems).Concat(ShopGear).Concat(ShopFeed).Distinct().ToArray();
+    public static readonly uint[][] StatusItems =
+    [
+        [138, 4870], // Temporal Sands
+        [99, 4846],  // G2 Reraiser
+        [98, 4846],  // G1 Reraiser
+        [101, 4856], // Merchant's Eye
+        [100, 4855]  // Thief's Eye
+    ];
 
-    private static ExcelSheet<XBMItem>? items;
+    public static readonly uint[] CombatDamageItems =
+    [
+        128, // Fang of Fire
+        129, // Fang of Ice
+        130, // Fang of Water
+        131, // Fang of Lightning
+        132, // Fang of Earth
+        133, // Fang of Wind
+        134, // Vampiric Fang
+    ];
 
-    private static ExcelSheet<XBMItem> Items => items ??= Svc.Data.GetExcelSheet<XBMItem>();
+    public static uint[] ShopItems => ShopHealing.Concat(StatusItems.Select(x => x[0])).Concat(CombatDamageItems).Concat(ShopGear).Concat(ShopFeed).Concat(Items.Where(item => item.Type.RowId != 0).Select(item => item.RowId)).Distinct().ToArray();
+
+    public static ConfigurationProfileV2.MetaConfig.CrucibleShopList ActiveShopList
+    {
+        get
+        {
+            ConfigurationProfileV2.MetaConfig.CrucibleConfig crucible = Configuration.Meta.Crucible;
+            if (crucible.ShopLists.Count == 0)
+            {
+                crucible.ShopLists.Add(new ConfigurationProfileV2.MetaConfig.CrucibleShopList
+                                       {
+                                           Order = crucible.ShopGearOrder.Select<uint, ConfigurationProfileV2.MetaConfig.CrucibleShopList.Entry>(id => id).ToList()
+                                       }.CompleteList());
+                crucible.ShopGearOrder = [];
+            }
+
+            crucible.ShopListIndex = Math.Clamp(crucible.ShopListIndex, 0, crucible.ShopLists.Count - 1);
+            return crucible.ShopLists[crucible.ShopListIndex];
+        }
+    }
+
+    public static List<ConfigurationProfileV2.MetaConfig.CrucibleShopList.Entry> ShopOrder => ActiveShopList.CompleteList().Order;
+    public static List<ConfigurationProfileV2.MetaConfig.CrucibleShopList.Entry> ShopOrderActive => ShopOrder.Where(e => !e.Blocked).ToList();
+
+    private static ExcelSheet<XBMItem> Items => field ??= Svc.Data.GetExcelSheet<XBMItem>();
+
+    public static readonly Dictionary<uint, uint[]> GearRequires = new()
+    {
+        [71] = [29], // Demonic Helm - Soulreaper Armor
+        [61] = [34]  // Thunder Axe - Umbral Wristlet
+    };
+
+    public static bool BlockedGear(uint row, HashSet<uint> ownedGear)
+    {
+        ConfigurationProfileV2.MetaConfig.CrucibleConfig crucible = Configuration.Meta.Crucible;
+
+        bool secondElementalAxe = ElemntalAxes.Contains(row) && ownedGear.Any(ElemntalAxes.Contains);
+        bool missingRequirement = crucible.RespectGearRequirements && GearRequires.TryGetValue(row, out uint[]? required) && !ownedGear.Any(required.Contains);
+
+        return secondElementalAxe || missingRequirement;
+    }
 
     public static string NameOf(uint row) =>
-        Items.TryGetRow(row, out XBMItem item) && item.Unknown2.ExtractText() is { Length: > 0 } name ? name : $"item {row}";
+        Items.TryGetRow(row, out XBMItem item) && item.Name.ExtractText() is { Length: > 0 } name ? name : $"item {row}";
+
+    public readonly record struct ItemInfo(string Name, string Type, string Summary, string Description, uint Icon);
+
+    public static ItemInfo? InfoOf(uint row)
+    {
+        if (!Items.TryGetRow(row, out XBMItem item))
+            return null;
+
+        string type = item.Type.ValueNullable?.Name.ExtractText() ?? string.Empty;
+        return new ItemInfo(NameOf(row), type, item.ShortDescription.ExtractText(), item.Description.ExtractText(), item.Icon);
+    }
 
     public static uint ItemIn(string text) =>
         Items.Where(x => x.RowId > 0)
-             .Select(x => (x.RowId, Name: x.Unknown2.ExtractText()))
+             .Select(x => (x.RowId, Name: x.Name.ExtractText()))
              .Where(x => x.Name.Length > 0 && text.Contains(x.Name, StringComparison.OrdinalIgnoreCase))
              .OrderByDescending(x => x.Name.Length)
              .Select(x => x.RowId)
@@ -209,7 +289,45 @@ internal static class CrucibleItemData
 
     public static int TreasureRank(uint row)
     {
-        int index = Array.IndexOf(TreasureOrder, row);
+        int index = ShopOrderActive.FindIndex(e => e.ID == row);
         return index < 0 ? int.MaxValue : index;
     }
-}
+
+    public enum CrucibleItemType
+    {
+        None,
+        BeastGear = 1,
+        CrucibleItem = 2,
+        Feed = 3
+    }
+
+    [Flags]
+    public enum CrucibleItemCategory
+    {
+        None       = 0,
+        Gear       = 1 << 0,
+        HealItem   = 1 << 1,
+        DamageItem = 1 << 2,
+        OtherItem  = 1 << 3,
+        Item       = HealItem | DamageItem | OtherItem,
+        Feed       = 1 << 4
+    }
+
+    public static CrucibleItemCategory GetCategoryOf(uint row)
+    {
+        if (!Items.TryGetRow(row, out XBMItem item) || !item.Type.IsValid)
+            return CrucibleItemCategory.None;
+
+        CrucibleItemType type = (CrucibleItemType) item.Type.RowId;
+
+        return type switch
+        {
+            CrucibleItemType.BeastGear => CrucibleItemCategory.Gear,
+            CrucibleItemType.CrucibleItem when ShopHealing.Contains(row) => CrucibleItemCategory.HealItem,
+            CrucibleItemType.CrucibleItem when CombatDamageItems.Contains(row) => CrucibleItemCategory.DamageItem,
+            CrucibleItemType.CrucibleItem => CrucibleItemCategory.OtherItem,
+            CrucibleItemType.Feed => CrucibleItemCategory.Feed,
+            _ => CrucibleItemCategory.None
+        };
+    }
+}   

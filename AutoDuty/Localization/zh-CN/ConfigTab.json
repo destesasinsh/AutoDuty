@@ -13,7 +13,8 @@
       "BareProfileNote": "基础配置文件只是为了最基础的运行，您可以复制它进行编辑",
       "ConfigOverridesActiveNote": "IPC 配置覆盖生效时，配置已锁定。请停止 AutoDuty 后再编辑。",
       "NewProfileName": "新配置文件名称",
-      "ChangeProfileName": "更改配置文件名称"
+      "ChangeProfileName": "更改配置文件名称",
+      "InvalidProfile": "无效配置"
     },
     "Language": "语言：",
     "LanguageHelp": "选择显示语言",
@@ -67,7 +68,8 @@
         "MaxDistanceRanged": "到目标的最大距离 | 远程",
         "PositionalRoleBased": "根据玩家职能设置身位",
         "UseDefaultSettings": "使用默认 BMAI 设置",
-        "UseDefaultSettingsHelp": "点击此按钮将把您的 BMAI 配置重置为 AD 的默认推荐设置。"
+        "UseDefaultSettingsHelp": "点击此按钮将把您的 BMAI 配置重置为 AD 的默认推荐设置。",
+        "PositionalAvarice": "根据 Avarice 设置身位"
       },
       "AutoManageVnavCamera": "自动管理 Vnav 对齐相机",
       "AutoManageVnavCameraHelp": "AutoDuty 将在每次副本开始时启用 VNav 中的对齐相机功能，并在完成后禁用（如果之前未设置）。",
@@ -100,7 +102,9 @@
         "UsingAltMovementHelp": "使用 Vnavmesh 以外的寻路插件。",
         "UsingAltBoss": "使用替代机制插件",
         "UsingAltBossHelp": "使用 BossMod 以外的机制插件。"
-      }
+      },
+      "WaitBeforeLeaving": "退出副本前等待时间（毫秒）",
+      "WaitBeforeLeavingHelp": "通常可设为 0"
     },
     "PreLoop": {
       "Header": "循环前初始化设置",
@@ -205,7 +209,8 @@
         "Apartment": "公寓",
         "Personal_Home": "个人房屋",
         "FC_Estate": "部队房屋",
-        "GC_Barracks": "冒险者分队军营"
+        "GC_Barracks": "小队驻地",
+        "Lifestream_Auto": "由 Lifestream 自动选择"
       },
       "SummoningBellLocations": {
         "Inn": "旅馆",
@@ -245,7 +250,7 @@
         "Start_AR_Night_Mode": "开启AR夜间模式"
       },
       "JobWithRole": {
-        "None": "None",
+        "None": "无",
         "All": "所有职业",
         "Tanks": "防护职业",
         "Healers": "治疗职业",
@@ -306,6 +311,18 @@
         "Player": "玩家",
         "Object": "对象",
         "Location": "位置"
+      },
+      "CurrencyId": {
+        "BicolorGemstone": "双色宝石",
+        "Gil": "金币",
+        "Hunt": "狩猎货币",
+        "MGP": "金碟币",
+        "PVP": "对战货币",
+        "Scrip": "制作采集票据",
+        "Tomestone": "亚拉戈神典石",
+        "Firmament": "天穹街振兴票",
+        "Cosmocredits": "宇宙信用点",
+        "OccultCrescent": "新月岛货币"
       }
     },
     "Dev": {
@@ -373,6 +390,9 @@
         "Warps": "传送点",
         "LevelTest": "等级测试"
       }
+    },
+    "PluginConfig": {
+      "Header": "调用 AutoDuty 的其他插件"
     }
   }
 }

@@ -11,7 +11,7 @@ using ECommons.Automation.NeoTaskManager;
 using ECommons.DalamudServices;
 using ECommons.ImGuiMethods;
 using ECommons.IPC.Subscribers.AutoRetainer;
-using ECommons.IPC.Subscribers.LifestreamIPC;
+using ECommons.IPC.Subscribers.Lifestream;
 using ECommons.MathHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
@@ -84,6 +84,7 @@ public abstract class LoopActionConfig
         }
     }
 
+    public abstract bool Locked { get; }
     public abstract void Run(ref bool queue);
     public abstract void OnGUI(bool   openWhenEnabled = true);
     public abstract bool OnGUIButton();
@@ -98,7 +99,7 @@ public abstract class LoopActionConfig<C> : LoopActionConfig where C : LoopActio
     public abstract string         OverlayName     { get; }
     public virtual  ExternalPlugin RequiredPlugins => ExternalPlugin.None;
     public virtual  string         ActionText      => "Executing: " + Name;
-    public virtual  bool           Locked          => false;
+    public override bool           Locked          => false;
     public virtual  string?        HelpText        => null;
 
     public override void Run(ref bool queue)
@@ -156,7 +157,7 @@ public abstract class LoopActionConfig<C> : LoopActionConfig where C : LoopActio
         ImGui.Text(Name);
         __.Dispose();
         if(this.HelpText != null)
-            ImGuiComponents.HelpMarker(this.HelpText);
+            ImGuiHelper.HelpMarker(this.HelpText);
 
         using ImRaii.DisabledDisposable ___ = ImRaii.Disabled(!__.Success);
 
@@ -181,8 +182,12 @@ public abstract class LoopActionConfig<C> : LoopActionConfig where C : LoopActio
             this.Run(ref queue);
         }
 
-        if(this.HelpText != null)
-            ImGuiComponents.HelpMarker(this.HelpText);
+        if(this.HelpText != null && ImGui.IsItemHovered())
+            using (ImRaii.Tooltip())
+            {
+                using (ImRaii.TextWrapPos(ImGui.GetFontSize() * 35.0f))
+                    ImGui.Text(this.HelpText);
+            }
 
         return true;
     }
@@ -786,6 +791,28 @@ public class CofferOpenLoopActionConfig : ActiveLoopActionConfig<CofferHelper, C
         }
     }
 }
+
+
+public class ShopLoopActionConfig : ActiveLoopActionConfig<ShopHelper, ShopLoopActionConfig>
+{
+    public override string? HelpText    => Loc.Get("LoopActions.Shop.Help");
+    public override string  OverlayName => Loc.Get("Overlay.Button.Shop");
+
+    public override ExternalPlugin RequiredPlugins { get; } = ExternalPlugin.Knightshopper;
+
+    [JsonProperty] public Knightshopper_IPCSubscriber.CurrencyId Currency { get; set; } = Knightshopper_IPCSubscriber.CurrencyId.Tomestone;
+
+    public override void OnGuiSettings()
+    {
+        Knightshopper_IPCSubscriber.CurrencyId currency = this.Currency;
+        if(ImGuiEx.EnumCombo(Loc.Get("LoopActions.Shop.CurrencySelection"), ref currency, Enum.GetValues<Knightshopper_IPCSubscriber.CurrencyId>().ToDictionary(ci => ci, ci => ci.ToLocalizedString())))
+        {
+            this.Currency = currency;
+            ConfigurationProfileV2.Save();
+        }
+    }
+}
+
 #endregion
 
 #region Custom
@@ -800,13 +827,18 @@ public class RetireLoopActionConfig : LoopActionConfig<RetireLoopActionConfig>
     public override string OverlayName => Loc.Get("Overlay.Button.Retire");
 
     [JsonProperty] public RetireLocation RetireLocationEnum { get; set; } = RetireLocation.Inn;
+    [JsonProperty] public bool AdjustForDutyModes { get; set; } = true;
 
     protected override void RunInternal(ref bool queue)
     {
+        if (this.AdjustForDutyModes && Configuration.Meta.DutyModeEnum is DutyMode.Crucible)
+            return;
+
         Plugin.taskManager.Enqueue(() => Svc.Log.Debug($"Retire Between Loop Action"));
 
         switch (this.RetireLocationEnum)
         {
+            case { } when this.AdjustForDutyModes && Configuration.Meta.DutyModeEnum is DutyMode.Squadron:
             case RetireLocation.GC_Barracks:
                 Plugin.taskManager.Enqueue(() => GotoBarracksHelper.Invoke(), "Loop-GotoBarracksInvoke");
                 break;
@@ -844,7 +876,7 @@ public class RetireLoopActionConfig : LoopActionConfig<RetireLoopActionConfig>
 
                 ImGuiHelper.EndUnconditionally? x = retireLocation is RetireLocation.FC_Estate or RetireLocation.Personal_Home or RetireLocation.Lifestream_Auto ? ImGuiHelper.RequiresPlugin(ExternalPlugin.Lifestream, "LoopActionRetireEnum", inline: true) : null;
 
-                if (ImGui.Selectable(retireLocation.ToLocalizedString() + (disabled ? Loc.Get("LoopActions.Retire.LifestreamNotRegistered") : string.Empty), this.RetireLocationEnum == retireLocation))
+                if (ImGui.Selectable(retireLocation.ToLocalizedString() + (disabled ? " | " + Loc.Get("LoopActions.Retire.LifestreamNotRegistered") : string.Empty), this.RetireLocationEnum == retireLocation))
                 {
                     this.RetireLocationEnum = retireLocation;
                     ConfigurationProfileV2.Save();
@@ -855,6 +887,15 @@ public class RetireLoopActionConfig : LoopActionConfig<RetireLoopActionConfig>
 
             ImGui.EndCombo();
         }
+        ImGui.PopItemWidth();
+
+        bool adjustForDutyModes = this.AdjustForDutyModes;
+        if (ImGui.Checkbox(Loc.Get("LoopActions.Retire.AdjustForDutyModes"), ref adjustForDutyModes))
+        {
+            this.AdjustForDutyModes = adjustForDutyModes;
+            ConfigurationProfileV2.Save();
+        }
+        ImGuiComponents.HelpMarker(Loc.Get("LoopActions.Retire.AdjustForDutyModesHelp"));
     }
 }
 
@@ -1196,7 +1237,7 @@ public class PlaylistSwitchLoopActionConfig : LoopActionConfig<PlaylistSwitchLoo
             return;
 
         PlaylistEntry? currentEntry = Plugin.PlaylistCurrentEntry;
-        if (currentEntry != null && ++currentEntry.curCount < currentEntry.count)
+        if (currentEntry != null && ++currentEntry.curCount < currentEntry.count && !currentEntry.TerminationConfig.ShouldStop)
         {
             Svc.Log.Debug($"repeating the duty once more: {currentEntry.curCount + 1} of {currentEntry.count}");
         }
@@ -1204,6 +1245,7 @@ public class PlaylistSwitchLoopActionConfig : LoopActionConfig<PlaylistSwitchLoo
         {
             Svc.Log.Debug("next playlist entry");
             Plugin.playlistIndex++;
+
             if (Plugin.playlistIndex >= Plugin.PlaylistCurrent.Entries.Count)
             {
                 Svc.Log.Debug("playlist done");

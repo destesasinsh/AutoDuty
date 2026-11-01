@@ -13,7 +13,8 @@
       "BareProfileNote": "The bare profile is for just running a duty, and nothing else. You can duplicate it to make edits.",
       "ConfigOverridesActiveNote": "Config is locked while IPC config overrides are active. Stop AutoDuty to edit again.",
       "NewProfileName": "New Profile Name",
-      "ChangeProfileName": "Change Profile Name"
+      "ChangeProfileName": "Change Profile Name",
+      "InvalidProfile": "Invalid profile"
     },
     "Language": "Language: ",
     "LanguageHelp": "Select display language",
@@ -66,6 +67,7 @@
         "MaxDistanceMelee": "Max Distance To Target | Melee",
         "MaxDistanceRanged": "Max Distance To Target | Ranged",
         "PositionalRoleBased": "Set Positional Based on Player Role",
+        "PositionalAvarice": "Set Positional Based on Avarice",
         "UseDefaultSettings": "Use Default BMAI Settings",
         "UseDefaultSettingsHelp": "Clicking this will reset your BMAI config to the default and *recommended* settings for AD"
       },
@@ -81,6 +83,8 @@
       "RebuildNavmeshTimes": "times",
       "UseReturnWhenStuck": "Use return when stuck",
       "ReturnTimes": "times",
+      "WaitBeforeLeaving": "Wait x milliseconds before leaving a duty",
+      "WaitBeforeLeavingHelp": "Can in most cases be kept to 0",
       "DrawPath": "Draw next steps in Path",
       "DrawPathSteps": "Drawing X steps",
       "DisableRenderWhileActive": "Disable rendering",
@@ -147,7 +151,6 @@
       "StopOnlyWhenAllSpells": "Stop Looping Only When All Spells Unlocked",
       "StopWhenInventoryFull": "Stop Looping when Inventory is full",
       "StopWhenInventoryFullSlots": "Free Slots left: ",
-
       "ExecuteCommandsOnTermination": "Execute commands on termination of all loops",
       "ExecuteCommandsOnTerminationHelp": "Execute commands on termination of all loops\nFor example {0}",
       "PlaySoundOnCompletion": "Play Sound on Completion of All Loops: ",
@@ -192,6 +195,9 @@
       "NoInfo": "{0}: No Info",
       "ResynchronizeStep": "Resynchronize Step"
     },
+    "PluginConfig": {
+      "Header": "Other Plugins using AD"
+    },
     "Enums": {
       "Positional": {
         "Any": "Any",
@@ -204,7 +210,8 @@
         "Apartment": "Apartment",
         "Personal_Home": "Personal Home",
         "FC_Estate": "FC Estate",
-        "GC_Barracks": "GC Barracks"
+        "GC_Barracks": "GC Barracks",
+        "Lifestream_Auto": "Lifestream Auto"
       },
       "SummoningBellLocations": {
         "Inn": "Inn",
@@ -305,6 +312,18 @@
         "Player": "Player",
         "Object": "Object",
         "Location": "Location"
+      },
+      "CurrencyId": {
+        "BicolorGemstone": "Bicolor Gemstones",
+        "Gil": "Gil",
+        "Hunt": "Hunt currencies",
+        "MGP": "MGP",
+        "PVP": "PvP currencies",
+        "Scrip": "Crafter and gatherer scrips",
+        "Tomestone": "Allagan Tomestones",
+        "Firmament": "Skybuilders' Scrips",
+        "Cosmocredits": "Cosmocredits",
+        "OccultCrescent": "Occult Crescent currencies"
       }
     }
   }

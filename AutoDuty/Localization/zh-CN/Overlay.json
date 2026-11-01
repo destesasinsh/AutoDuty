@@ -1,40 +1,42 @@
 {
-    "Overlay":  {
-                    "Button":  {
-                                   "Goto":  "前往",
-                                   "TurnIn":  "军票",
-                                   "Desynth":  "分解",
-                                   "Extract":  "精炼",
-                                   "Repair":  "修理",
-                                   "Equip":  "装备",
-                                   "Coffers":  "装备箱",
-                                   "TripleTriad":  "幻卡",
-                                   "Armoire":  "存入收藏柜",
-                                   "Glamour":  "存入投影台",
-                                   "AutoRetainer":  "雇员",
-                                   "AutoRetainerMulti":  "多角色模式",
-                                   "Discard":  "丢弃",
-                                   "TripleTriadUse":  "使用九宫幻卡",
-                                   "TripleTriadSell":  "出售九宫幻卡",
-                                   "ConsumeItems":  "使用物品",
-                                   "ExecuteCommands":  "执行命令",
-                                   "Wait":  "等待",
-                                   "PlaySound":  "播放声音",
-                                   "Retire":  "返回指定地点"
-                               },
-                    "Tooltip":  {
-                                    "Desynth":  "点击分解背包中的所有可分解物品",
-                                    "TurnIn":  "点击前往调用 AutoRetainer 进行军队筹备",
-                                    "TurnInMissing":  "军队筹备需要 AutoRetainer 插件。获取 @ https://raw.githubusercontent.com/Ookura-Risona/DalamudPlugins/main/pluginmaster.json",
-                                    "Extract":  "点击进行精炼",
-                                    "ExtractMissing":  "精炼需要完成任务: 情感培育之力",
-                                    "Repair":  "点击修理装备",
-                                    "Equip":  "点击装备装备",
-                                    "Coffers":  "点击开启装备箱"
-                                },
-                    "Popup":  {
-                                  "MissingPlugin":  "缺少插件",
-                                  "MissingQuestCompletion":  "缺少前置任务"
-                              }
-                }
+  "Overlay": {
+    "Button": {
+      "Goto": "前往",
+      "TurnIn": "军票",
+      "Desynth": "分解",
+      "Extract": "精炼",
+      "Repair": "修理",
+      "Equip": "装备",
+      "Coffers": "装备箱",
+      "TripleTriad": "幻卡",
+      "Armoire": "存入收藏柜",
+      "Glamour": "存入投影台",
+      "AutoRetainer": "雇员",
+      "AutoRetainerMulti": "多角色模式",
+      "Discard": "丢弃",
+      "TripleTriadUse": "使用九宫幻卡",
+      "TripleTriadSell": "出售九宫幻卡",
+      "ConsumeItems": "使用物品",
+      "ExecuteCommands": "执行命令",
+      "Wait": "等待",
+      "PlaySound": "播放声音",
+      "Retire": "返回指定地点",
+      "Shop": "购物"
+    },
+    "Tooltip": {
+      "Desynth": "点击分解背包中的所有可分解物品",
+      "TurnIn": "点击前往调用 AutoRetainer 进行军队筹备",
+      "TurnInMissing": "军队筹备需要 AutoRetainer 插件。获取 @ https://raw.githubusercontent.com/Ookura-Risona/DalamudPlugins/main/pluginmaster.json",
+      "Extract": "点击进行精炼",
+      "ExtractMissing": "精炼需要完成任务: 情感培育之力",
+      "Repair": "点击修理装备",
+      "Equip": "点击装备装备",
+      "Coffers": "点击开启装备箱",
+      "Shop": "按已配置的商店清单购买物品"
+    },
+    "Popup": {
+      "MissingPlugin": "缺少插件",
+      "MissingQuestCompletion": "缺少前置任务"
+    }
+  }
 }

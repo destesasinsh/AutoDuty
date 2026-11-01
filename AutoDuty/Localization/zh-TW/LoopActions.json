@@ -1,5 +1,6 @@
 {
   "LoopActions": {
+    "Hint": "按住 Ctrl 可刪除項目",
     "AutoEquip": {
       "GearSourceHelp": "原版 - 僅使用兵装庫(Armory Chest)裝備\n裝備管理器 - 調用 Gearsetter，可將淘汰裝備移至背包\n造型師 - 使用 Stylist 插件設置",
       "MoveOldToInventory": "將舊物品移至背包",
@@ -14,6 +15,7 @@
       "TriggerAt": "觸發條件 @",
       "PreferredRepairNPC": "首選修理 NPC：",
       "PreferredRepairNPCHelp": "建議將修理 NPC 與傳喚鈴以及返回位置（如可能）設置在同一地點",
+      "NPCSearchHint": "輸入 NPC 或區域名稱以搜尋",
       "GrandCompanyInn": "冒險者分隊軍營"
     },
     "AutoRetainer": {
@@ -21,6 +23,12 @@
       "PreferredSummoningBellHelp": "無論選擇哪個位置，如果你當前所在地有傳喚鈴，將優先前往該位置",
       "WaitingUpTo": "最多等待...",
       "Seconds": "秒"
+    },
+    "PlaylistPreLoop": {
+      "Help": "使用播放清單模式時，切換成第一個項目指定的套裝"
+    },
+    "PlaylistSwitchLoop": {
+      "Help": "使用播放清單模式時，切換成下一個項目指定的套裝，並在適用時將目前循環切換至下一個播放清單項目"
     },
     "TripleTriadSell": {
       "SlotsOccupied": "佔用格數",
@@ -34,15 +42,24 @@
       "InventorySlotsLeft": "剩餘背包格數 @",
       "UseGCAetheryteTicket": "使用大國防聯軍傳送券"
     },
+    "Armoire": {
+      "Help": "在循環之間將物品放入愛藏品櫃"
+    },
+    "Glamour": {
+      "Help": "在循環之間將物品放入投影台"
+    },
     "Desynth": {
       "OnlySkillUps": "僅提升分解熟練度時分解",
       "ItemLevelLimit": "物品等級限制",
       "ItemLevelLimitHelp": "當你的分解技能達到物品等級 + 此限制時，停止分解該物品。",
       "NQOnly": "只分解NQ物品",
       "ProtectGearsets": "保護套裝",
+      "ProtectGearsetterUpgrades": "自動分解時保留 Gearsetter 建議的升級裝備",
+      "ProtectGearsetterUpgradesHelp": "尚未裝備但被 Gearsetter 建議為任何套裝升級的物品也會受到保護。需要安裝 Gearsetter 插件。",
       "Categories": "分解類別"
     },
     "Coffers": {
+      "Help": "AutoDuty 會在每次循環之間開啟裝備箱（例如騎士武器箱）",
       "OpenCoffersWithGearset": "使用套裝開啟寶箱：",
       "CurrentGearset": "當前套裝",
       "UseBlacklist": "使用黑名單",
@@ -53,6 +70,7 @@
       "AddCoffer": "新增寶箱"
     },
     "Retire": {
+      "LifestreamNotRegistered": ""
     },
     "ConsumeItems": {
       "AutoConsumeHelp": "AutoDuty 將在運行時和每次循環間使用這些物品（如果狀態不存在）",
@@ -69,6 +87,7 @@
     },
     "Wait": {
       "WaitTime": "（秒）循環間等待時間",
+      "WaitOnPlugins": "等待指定插件完成其動作",
       "WaitTimeHelp": "將所有 AutoDuty 循環間處理延遲 X 秒。"
     }
   }

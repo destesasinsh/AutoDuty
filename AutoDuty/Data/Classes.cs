@@ -14,6 +14,7 @@ namespace AutoDuty.Data
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using Configurations;
     using ECommons.DalamudServices;
 
     public class Classes
@@ -284,6 +285,11 @@ namespace AutoDuty.Data
                 get => field ??= ContentPathsManager.DictionaryPaths[this.id].SelectPath(out _)!.FileName;
                 set;
             }
+
+
+            [JsonIgnore] public bool terminationConfigOpen = false;
+
+            public              ConfigurationProfileV2.LoopConfig.TerminationConfig TerminationConfig { get; set; } = new(null);
 
             public int count    = 1;
             public int curCount = 0;

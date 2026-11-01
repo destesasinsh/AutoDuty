@@ -175,7 +175,7 @@ public class PathActionConditionActionStatus : PathActionCondition
     public override IEnumerable<(Vector4 color, string text)> DrawStepEntry()
     {
         yield return (new Vector4(1, 165 / 255f, 0, 1), $"{ConditionType.ActionStatus.ToLocalizedString()} ");
-        yield return (new Vector4(1, 165 / 255f, 0, 1), $"{this.type.ToLocalizedString()} {this.id} {this.statusCode}");
+        yield return (new Vector4(1, 165 / 255f, 0, 1), $"{this.type.ToCustomString()} {this.id} {this.statusCode}");
     }
 }
 

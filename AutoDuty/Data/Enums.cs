@@ -8,7 +8,6 @@
     using Dalamud.Interface.Utility.Raii;
     using ECommons.ExcelServices;
     using Dalamud.Bindings.ImGui;
-    using System.ComponentModel;
 
     public static class Enums
     {
@@ -108,33 +107,22 @@
         }
         public enum RetireLocation : int
         {
-            [Description("旅馆")]
             Inn = 0,
-            [Description("公寓")]
             Apartment = 1,
-            [Description("个人房屋")]
             Personal_Home = 2,
-            [Description("部队房屋")]
             FC_Estate = 3,
-            [Description("冒险者分队军营")]
             GC_Barracks = 4,
             Lifestream_Auto = 5
         }
         public enum TerminationMode : int
         {
-            [Description("什么都不做")]
             Do_Nothing = 0,
-            [Description("返回标题画面")]
             Logout = 1,
-            [Description("开启AutoRetainer")]
             Start_AR_Multi_Mode = 2,
-            [Description("关闭游戏")]
             Kill_Client = 3,
-            [Description("关闭电脑")]
             Kill_PC = 4,
-            [Description("开启AR夜间模式")]
             Start_AR_Night_Mode = 5
-            
+
         }
         public enum Role : int
         {
@@ -145,13 +133,9 @@
         }
         public enum Positional : int
         {
-            [Description("任意")]
             Any = 0,
-            [Description("侧面")]
             Flank = 1,
-            [Description("背面")]
             Rear = 2,
-            [Description("正面")]
             Front = 3
         }
         public enum SummoningBellLocations : uint
@@ -208,9 +192,7 @@
 
         public enum AutoDutyMode : byte
         {
-            [Description("循环")]
             Looping = 0,
-            [Description("自定义队列")]
             Playlist = 1
         }
 
@@ -236,15 +218,26 @@
             Custom      = 2
         }
 
+        public enum CrucibleLevelingMode : int
+        {
+            Full = 0,
+            Minus_3 = 1,
+            Only_3 = 2,
+            Carry_Minus_2 = 3
+        }
+
+        public enum CrucibleDegree
+        {
+            Standard = 0,
+            First = 1,
+            Second = 2,
+            Third = 3
+        }
         public enum LevelingMode : int
         {
-            [Description("无")]
             None = 0,
-            [Description("剧情辅助器")]
             Support = 1,
-            [Description("亲信练级")]
             Trust_Group = 2,
-            [Description("玩家练级")]
             Trust_Solo = 3
         }
 
@@ -367,14 +360,15 @@
             Avarice              = 1 << 2,
             RotationSolverReborn = 1 << 3,
             WrathCombo           = 1 << 4,
-            AEAssist             = 1 << 12,
             AutoRetainer         = 1 << 5,
             Gearsetter           = 1 << 6,
             Stylist              = 1 << 7,
             Lifestream           = 1 << 8,
             AntiAFK              = 1 << 9,
             Pandora              = 1 << 10,
-            GlamourLog           = 1 << 11
+            GlamourLog           = 1 << 11,
+            Knightshopper        = 1 << 12,
+            AEAssist             = 1 << 13,
         }
 
         public enum ConditionType

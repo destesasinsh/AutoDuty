@@ -42,13 +42,12 @@ public static class ConfigTab
 
     private static ConfigurationProfileV2     Configuration => AutoDuty.Configuration; 
     public static Dictionary<uint, Item>     Items         { get; set; } = Svc.Data.GetExcelSheet<Item>()?.Where(x => !x.Name.ToString().IsNullOrEmpty()).ToDictionary(x => x.RowId, x => x) ?? [];
-    private static string                     stopItemQtyItemNameInput = "";
-    private static KeyValuePair<uint, string> stopItemQtySelectedItem  = new(0, "");
 
     private static string profileRenameInput = "";
 
     private static bool overlayHeaderSelected      = false;
     private static bool multiboxHeaderSelected     = false;
+    private static bool pluginConfigHeaderSelected = false;
     private static bool devHeaderSelected          = false;
     private static bool dutyConfigHeaderSelected   = false;
     private static bool bmaiSettingHeaderSelected  = false;
@@ -98,7 +97,7 @@ public static class ConfigTab
         ImGui.AlignTextToFramePadding();
         ImGui.Text(Loc.Get("ConfigTab.Profile.CurrentlySelected"));
         ImGui.SameLine();
-        if (ConfigurationMain.Instance.ActiveProfileName == ConfigurationMain.CONFIGNAME_BARE)
+        if (ConfigurationMain.Instance.ActiveProfileGuid == ConfigurationMain.CONFIGGUID_BARE)
             ImGuiHelper.DrawIcon(FontAwesomeIcon.Lock);
         if (ConfigurationMain.Instance.ActiveProfileName == ConfigurationMain.Instance.DefaultConfigName)
             ImGuiHelper.DrawIcon(FontAwesomeIcon.CheckCircle);
@@ -168,7 +167,7 @@ public static class ConfigTab
 
 
 
-        bool bareProfile = ConfigurationMain.Instance.ActiveProfileName == ConfigurationMain.CONFIGNAME_BARE;
+        bool bareProfile = ConfigurationMain.Instance.ActiveProfileGuid == ConfigurationMain.CONFIGGUID_BARE;
 
         if (ImGuiComponents.IconButton(FontAwesomeIcon.Plus))
             ConfigurationMain.Instance.CreateNewProfile();
@@ -424,8 +423,32 @@ public static class ConfigTab
                 if (ImGui.CollapsingHeader("XBM"))
                 {
                     ImGui.Indent();
+
+                    if (ImGui.CollapsingHeader("XBMMainHUD"))
+                        unsafe
+                        {
+                            if (GenericHelpers.TryGetAddonByName("XBMContentsMainHUD", out AtkUnitBase* addon))
+                            {
+                                ReaderXBMContentsMainHUD x = new(addon);
+                                ImGui.Text($"Coins: {x.Coins}");
+                                ImGui.Text("Stock:");
+                                ImGui.Indent();
+                                
+                                ImGui.Text("Gear:");
+                                ImGui.Indent();
+                                foreach (ReaderXBMContentsItemShop.ItemEntry entry in x.ItemEntries)
+                                    ImGui.Text($"Gear: {entry.Unk0} | {entry.Available} | {entry.IconId} | {entry.Id} | {entry.Name}");
+                                ImGui.Unindent();
+
+                                ImGui.Text("Owned:");
+                                ImGui.Indent();
+                                foreach (ReaderXBMContentsItemShop.GearEntry entry in x.OwnedEntriesOwned)
+                                    ImGui.Text($"Owned: {entry.Owned} | {entry.IconId} | {entry.Id} | {entry.Name}");
+                                ImGui.Unindent();
+                            }
+                        }
+
                     if (ImGui.CollapsingHeader("XBMBestiary"))
-                    {
                         unsafe
                         {
                             if (GenericHelpers.TryGetAddonByName("XBMMonsterNotebook", out AtkUnitBase* addon))
@@ -438,10 +461,8 @@ public static class ConfigTab
                                     ImGui.Text($"Mob: {entry.Number} | {entry.Caught}");
                             }
                         }
-                    }
 
                     if (ImGui.CollapsingHeader("XBMShop"))
-                    {
                         unsafe
                         {
                             if (GenericHelpers.TryGetAddonByName("XBMContentsItemShop", out AtkUnitBase* addon))
@@ -457,17 +478,116 @@ public static class ConfigTab
                                 ImGui.Text("Gear:");
                                 ImGui.Indent();
                                 foreach (ReaderXBMContentsItemShop.ItemEntry entry in x.ItemEntries)
-                                    ImGui.Text($"Gear: {entry.Unk0} | {entry.Sellable} | {entry.IconId} | {entry.Id} | {entry.Name}");
+                                    ImGui.Text($"Gear: {entry.Unk0} | {entry.Available} | {entry.IconId} | {entry.Id} | {entry.Name}");
                                 ImGui.Unindent();
 
                                 ImGui.Text("Owned:");
                                 ImGui.Indent();
                                 foreach (ReaderXBMContentsItemShop.GearEntry entry in x.OwnedEntriesOwned)
-                                    ImGui.Text($"Owned: {entry.Owned} | {entry.Unk2} | {entry.Id} | {entry.Name}");
+                                    ImGui.Text($"Owned: {entry.Owned} | {entry.IconId} | {entry.Id} | {entry.Name}");
                                 ImGui.Unindent();
                             }
                         }
-                    }
+
+                    if (ImGui.CollapsingHeader("XBMParty"))
+                        unsafe
+                        {
+                            if (GenericHelpers.TryGetAddonByName("XBMPetParty", out AtkUnitBase* addon))
+                            {
+                                ReaderXBMPetParty x = new(addon);
+                                ImGui.Text("Pets:");
+                                ImGui.Indent();
+                                foreach (ReaderXBMPetParty.MonsterEntry entry in x.TeamEntries)
+                                    ImGui.Text($"Pet: {entry.Rank} | {entry.Name.GetText()} | {entry.Number} | {entry.IconId} | {entry.Disabled} | {entry.FedCurrent}/{entry.FedMax} | {string.Join(", ", entry.FedItems.Select(fe => fe.ItemId))}");
+                                ImGui.Unindent();
+
+                                ImGui.Text("Feed Item: " + x.FeedItem.ItemId);
+                            }
+                        }
+
+                    if (ImGui.CollapsingHeader("XBMTreasure"))
+                        unsafe
+                        {
+                            if (GenericHelpers.TryGetAddonByName("XBMContentsTreasure", out AtkUnitBase* addon))
+                            {
+                                ReaderXBMContentsTreasure x = new(addon);
+                                ImGui.Text("Treasure:");
+                                ImGui.Indent();
+
+                                uint[] items = x.ItemEntriesValid.Select(ie => ie.Id).ToArray();
+                                HashSet<uint> gear  = x.OwnedEntriesOwned.Select(ie => ie.Id).ToHashSet();
+
+                                foreach (ReaderXBMContentsTreasure.TreasureChoice entry in x.TreasureChoices)
+                                    ImGui.Text($"Treasure: {entry.Bought} | {entry.Item} | {entry.treasureIndex} | {entry.Unk0} | gear: {CrucibleItemData.ShopGear.Contains(entry.Item)} | item: {CrucibleItemData.ShopHealing.Contains(entry.Item)} | {!entry.Bought &&
+                                        (!CrucibleItemData.ShopGear.Contains(entry.Item)    || (gear.Count  < 10 && !gear.Contains(entry.Item)))                                                                                                                      &&
+                                        (!CrucibleItemData.ShopHealing.Contains(entry.Item) || (items.Length < 10 && !items.Contains(entry.Item)))}");
+                                ImGui.Unindent();
+
+                                ImGui.Text("Item:");
+                                ImGui.Indent();
+                                foreach (ReaderXBMContentsItemShop.ItemEntry entry in x.ItemEntriesValid)
+                                    ImGui.Text($"Item: {entry.Unk0} | {entry.Available} | {entry.IconId} | {entry.Id} | {entry.Name}");
+                                ImGui.Unindent();
+
+                                ImGui.Text("Owned:");
+                                ImGui.Indent();
+                                foreach (ReaderXBMContentsItemShop.GearEntry entry in x.OwnedEntriesOwned)
+                                    ImGui.Text($"Owned: {entry.Owned} | {entry.IconId} | {entry.Id} | {entry.Name}");
+                                ImGui.Unindent();
+                            }
+                        }
+
+                    if (ImGui.CollapsingHeader("XBMBooty"))
+                        unsafe
+                        {
+                            if (GenericHelpers.TryGetAddonByName("XBMContentsBooty", out AtkUnitBase* addon))
+                            {
+                                ReaderXBMContentsBooty x = new(addon);
+                                ImGui.Text("Loot:");
+                                ImGui.Indent();
+                                foreach (ReaderXBMContentsBooty.LootChoice entry in x.LootChoices)
+                                    ImGui.Text($"Loot: {entry.Item} | {entry.Taken} | {entry.lootIndex}");
+                                ImGui.Unindent();
+
+                            }
+                        }
+
+                    if (ImGui.CollapsingHeader("XBMResult"))
+                        unsafe
+                        {
+                            if (GenericHelpers.TryGetAddonByName("XBMResult", out AtkUnitBase* addon))
+                            {
+                                ReaderXBMResult x = new(addon);
+                                ImGui.Text("Results:");
+
+                                ImGui.Text("Performance: " + x.Performance);
+                                ImGui.Text("Moves: "       + x.MovesMadeScore);
+                                ImGui.Text("Enemy: "       + x.EnemyScore);
+                                ImGui.Text("Elite Enemy: " + x.EliteScore);
+                                ImGui.Text("Remaining HP: " + x.RemainingHP);
+                                ImGui.SameLine();
+                                ImGui.Text("| Score: " + x.RemainingHPScore);
+                                ImGui.NewLine();
+                                ImGui.Text("Bonus Score: " + x.BonusBoostScore);
+                                ImGui.Indent();
+                                foreach (ReaderXBMResult.BonusBoostEntry entry in x.BonusBoostEntries)
+                                    ImGui.Text($"Bonus Boost: {entry.Name} | {entry.Score}");
+                                ImGui.Unindent();
+
+                                ImGui.Text("Loot");
+                                ImGui.Indent();
+                                foreach (ReaderXBMResult.LootEntry entry in x.LootEntries)
+                                    ImGui.Text($"Bonus Boost: {entry.Name} | {entry.Count}x | {entry.ItemId}");
+                                ImGui.Unindent();
+
+                                ImGui.Text("Beasts");
+                                ImGui.Indent();
+                                foreach (ReaderXBMResult.BeastEntry entry in x.BeastEntries)
+                                    ImGui.Text($"Beast: {entry.Number} | XP: {entry.PrevXP} -> {entry.NewXP} | Rank: {entry.PrevRank} -> {entry.NewRank}");
+                                ImGui.Unindent();
+                            }
+                        }
+
                     ImGui.Unindent();
                 }
 
@@ -790,6 +910,25 @@ public static class ConfigTab
                             ImGui.EndPopup();
                         }
                     }
+
+                    if (Configuration.DutyConfig.BossMod.PositionalRoleBased)
+                    {
+                        using ImGuiHelper.EndUnconditionally __ = ImGuiHelper.RequiresPlugin(ExternalPlugin.Avarice, "ConfigAvarice");
+
+                        ImGui.Indent();
+                        bool avaricePositional = Configuration.DutyConfig.BossMod.PositionalAvarice;
+                        if (ImGui.Checkbox(Loc.Get("ConfigTab.Duty.BMAI.PositionalAvarice"), ref avaricePositional))
+                        {
+                            Configuration.DutyConfig.BossMod.PositionalAvarice = avaricePositional;
+                            BMRoleChecks();
+                            ConfigurationProfileV2.Save();
+                        }
+
+
+                        ImGui.Unindent();
+                    }
+
+
                     if (ImGui.Button(Loc.Get("ConfigTab.Duty.BMAI.UseDefaultSettings")))
                     {
                         Configuration.DutyConfig.BossMod.MaxDistanceToTargetRoleBased = true;
@@ -910,8 +1049,14 @@ public static class ConfigTab
                 ConfigurationProfileV2.Save();
             }
 
-
             ImGui.Unindent();
+
+            uint waitBeforeLeaving = Configuration.DutyConfig.WaitBeforeLeaving;
+            if (ImGui.InputUInt(Loc.Get("ConfigTab.Duty.WaitBeforeLeaving"), ref waitBeforeLeaving, 1, 100))
+            {
+                Configuration.DutyConfig.WaitBeforeLeaving = waitBeforeLeaving;
+                ConfigurationProfileV2.Save();
+            }
 
             bool pathDrawEnabled = Configuration.DutyConfig.PathDrawEnabled;
             if(ImGui.Checkbox(Loc.Get("ConfigTab.Duty.DrawPath"), ref pathDrawEnabled))
@@ -1106,256 +1251,7 @@ public static class ConfigTab
             terminationHeaderSelected = !terminationHeaderSelected;
         if (terminationHeaderSelected == true)
         {
-            bool terminationEnabled = Configuration.Loop.Termination.Enabled;
-            if (ImGui.Checkbox($"{Loc.Get("ConfigTab.Termination.Enable")}###TerminationEnable", ref terminationEnabled))
-            {
-                Configuration.Loop.Termination.Enabled = terminationEnabled;
-                ConfigurationProfileV2.Save();
-            }
-
-            ImGuiComponents.HelpMarker(Loc.Get("ConfigTab.Termination.Help"));
-            using (ImRaii.Disabled(!Configuration.Loop.Termination.Enabled))
-            {
-                ImGui.Separator();
-
-                bool terminationStopLevel = Configuration.Loop.Termination.StopLevel;
-                if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopAtLevel"), ref terminationStopLevel))
-                {
-                    Configuration.Loop.Termination.StopLevel = terminationStopLevel;
-                    ConfigurationProfileV2.Save();
-                }
-
-                if (Configuration.Loop.Termination.StopLevel)
-                {
-                    ImGui.SameLine(0, 10);
-                    ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X);
-
-                    int stopLevelInt = Configuration.Loop.Termination.StopLevelInt;
-                    if(MakeSliderOrInput(ref stopLevelInt, "##Level", 1, 100))
-                    {
-                        Configuration.Loop.Termination.StopLevelInt = Math.Clamp(stopLevelInt, 1, 100);
-                        ConfigurationProfileV2.Save();
-                    }
-
-                    ImGui.PopItemWidth();
-                }
-
-                bool restedXP = Configuration.Loop.Termination.StopNoRestedXP;
-                if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopNoRestedXP"), ref restedXP))
-                {
-                    Configuration.Loop.Termination.StopNoRestedXP = restedXP;
-                    ConfigurationProfileV2.Save();
-                }
-
-                bool terminationiLvl = Configuration.Loop.Termination.TerminationiLvl;
-                if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopAtILevel"), ref terminationiLvl))
-                {
-                    Configuration.Loop.Termination.TerminationiLvl = terminationiLvl;
-                    ConfigurationProfileV2.Save();
-                }
-
-                if (Configuration.Loop.Termination.TerminationiLvl)
-                {
-                    ImGui.SameLine(0, 10);
-                    ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X);
-                    int terminationiLvlInt = Configuration.Loop.Termination.TerminationiLvlInt;
-
-                    if (MakeSliderOrInput(ref terminationiLvlInt, "##ItemLevel", 1, 100))
-                    {
-                        Configuration.Loop.Termination.TerminationiLvlInt = Math.Clamp(terminationiLvlInt, 1, 100);
-                        ConfigurationProfileV2.Save();
-                    }
-                    ImGui.PopItemWidth();
-                }
-
-
-                bool stopItemQty = Configuration.Loop.Termination.StopItemQty;
-                if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopAtItemQty"), ref stopItemQty))
-                {
-                    Configuration.Loop.Termination.StopItemQty = stopItemQty;
-                    ConfigurationProfileV2.Save();
-                }
-
-                if (Configuration.Loop.Termination.StopItemQty)
-                {
-                    ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X - 125 * ImGuiHelpers.GlobalScale);
-                    if (ImGui.BeginCombo(Loc.Get("ConfigTab.Termination.SelectItem"), stopItemQtySelectedItem.Value))
-                    {
-                        ImGui.InputTextWithHint(Loc.Get("ConfigTab.Termination.ItemName"), Loc.Get("ConfigTab.Termination.ItemNameHint"), ref stopItemQtyItemNameInput, 1000);
-                        foreach (KeyValuePair<uint, Item> item in Items.Where(x => x.Value.Name.ToString().Contains(stopItemQtyItemNameInput, StringComparison.InvariantCultureIgnoreCase))!)
-                            if (ImGui.Selectable($"{item.Value.Name.ToString()}"))
-                                stopItemQtySelectedItem = new KeyValuePair<uint, string>(item.Key, item.Value.Name.ToString());
-                        ImGui.EndCombo();
-                    }
-                    ImGui.PopItemWidth();
-                    ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X - 220 * ImGuiHelpers.GlobalScale);
-                    int stopItemQtyInt = Configuration.Loop.Termination.StopItemQtyInt;
-                    if (ImGui.InputInt(Loc.Get("ConfigTab.Termination.Quantity"), ref stopItemQtyInt, 1, 10))
-                    {
-                        Configuration.Loop.Termination.StopItemQtyInt = stopItemQtyInt;
-                        ConfigurationProfileV2.Save();
-                    }
-
-                    ImGui.SameLine(0, 5);
-                    using (ImRaii.Disabled(stopItemQtySelectedItem.Value.IsNullOrEmpty()))
-                    {
-                        if (ImGui.Button(Loc.Get("ConfigTab.Termination.AddItem")))
-                        {
-                            if (!Configuration.Loop.Termination.StopItemQtyItemDictionary.TryAdd(stopItemQtySelectedItem.Key, new KeyValuePair<string, int>(stopItemQtySelectedItem.Value, Configuration.Loop.Termination.StopItemQtyInt)))
-                            {
-                                Configuration.Loop.Termination.StopItemQtyItemDictionary.Remove(stopItemQtySelectedItem.Key);
-                                Configuration.Loop.Termination.StopItemQtyItemDictionary.Add(stopItemQtySelectedItem.Key, new KeyValuePair<string, int>(stopItemQtySelectedItem.Value, Configuration.Loop.Termination.StopItemQtyInt));
-                            }
-                            ConfigurationProfileV2.Save();
-                        }
-                    }
-                    ImGui.PopItemWidth();
-                    if (!ImGui.BeginListBox("##ItemList", new System.Numerics.Vector2(ImGui.GetContentRegionAvail().X, (ImGui.GetTextLineHeightWithSpacing() * Configuration.Loop.Termination.StopItemQtyItemDictionary.Count) + 5)))
-                        return;
-
-                    foreach (KeyValuePair<uint, KeyValuePair<string, int>> item in Configuration.Loop.Termination.StopItemQtyItemDictionary)
-                    {
-                        ImGui.Selectable($"{item.Value.Key} (Qty: {item.Value.Value})");
-                        if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
-                        {
-                            Configuration.Loop.Termination.StopItemQtyItemDictionary.Remove(item);
-                            ConfigurationProfileV2.Save();
-                        }
-                    }
-                    ImGui.EndListBox();
-                    bool stopItemAll = Configuration.Loop.Termination.StopItemAll;
-                    if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopOnlyWhenAllItems"), ref stopItemAll))
-                    {
-                        Configuration.Loop.Termination.StopItemAll = stopItemAll;
-                        ConfigurationProfileV2.Save();
-                    }
-                }
-
-                using (ImGuiHelper.RequiresPlugin(ExternalPlugin.GlamourLog, "StopWhenDutyGatheredGlamourLog", inline: true))
-                {
-                    bool stopWhenDutyGathered = Configuration.Loop.Termination.StopWhenDutyGathered;
-                    if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopWhenDutyGathered"), ref stopWhenDutyGathered))
-                    {
-                        Configuration.Loop.Termination.StopWhenDutyGathered = stopWhenDutyGathered;
-                        ConfigurationProfileV2.Save();
-                    }
-                    ImGuiComponents.HelpMarker(Loc.Get("ConfigTab.Termination.StopWhenDutyGatheredHelp"));
-                }
-
-                bool bluSpellsEnabled = Configuration.Loop.Termination.TerminationBLUSpellsEnabled;
-                if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopBLUSpell"), ref bluSpellsEnabled))
-                {
-                    Configuration.Loop.Termination.TerminationBLUSpellsEnabled = bluSpellsEnabled;
-                    ConfigurationProfileV2.Save();
-                }
-
-                if (Configuration.Loop.Termination.TerminationBLUSpellsEnabled)
-                {
-                    ImGui.Indent();
-
-                    if(ImGui.BeginCombo("##TerminationBlueSpell", Loc.Get("ConfigTab.Termination.SelectBLUSpell")))
-                    {
-                        foreach (BLUHelper.BLUSpell bluSpell in BLUHelper.spells)
-                        {
-                            if (!BLUHelper.SpellUnlocked(bluSpell))
-                                if (ImGui.Selectable($"({bluSpell.Entry}) {bluSpell.Name}"))
-                                {
-                                    Configuration.Loop.Termination.TerminationBLUSpells.Add(bluSpell.ID);
-                                    Configuration.Loop.Termination.TerminationBLUSpells = [..Configuration.Loop.Termination.TerminationBLUSpells.OrderBy(sp => BLUHelper.spellsById[sp].Entry)];
-                                    ConfigurationProfileV2.Save();
-                                }
-                        }
-
-                        ImGui.EndCombo();
-                    }
-
-                    if (ImGui.BeginListBox("##TerminationBluSpellList", new System.Numerics.Vector2(ImGui.GetContentRegionAvail().X, (ImGui.GetTextLineHeightWithSpacing() * Configuration.Loop.Termination.TerminationBLUSpells.Count) + 5)))
-                    {
-                        foreach (uint bluSpell in Configuration.Loop.Termination.TerminationBLUSpells)
-                        {
-                            BLUHelper.BLUSpell spell = BLUHelper.spellsById[bluSpell];
-                            ImGui.Selectable($"({spell.Entry}) {spell.Name}");
-                            if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
-                            {
-                                Configuration.Loop.Termination.TerminationBLUSpells.Remove(bluSpell);
-                                ConfigurationProfileV2.Save();
-                                return;
-                            }
-                        }
-                        ImGui.EndListBox();
-                    }
-
-                    bool bluSpellsAll = Configuration.Loop.Termination.TerminationBLUSpellsAll;
-                    if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopOnlyWhenAllSpells"), ref bluSpellsAll))
-                    {
-                        Configuration.Loop.Termination.TerminationBLUSpellsAll = bluSpellsAll;
-                        ConfigurationProfileV2.Save();
-                    }
-
-                    ImGui.Unindent();
-                }
-
-                bool inventoryFree = Configuration.Loop.Termination.TerminationInventoryFree;
-                if(ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopWhenInventoryFull") + "###StopWhenInventoryFull", ref inventoryFree))
-                {
-                    Configuration.Loop.Termination.TerminationInventoryFree = inventoryFree;
-                    ConfigurationProfileV2.Save();
-                }
-
-                if (Configuration.Loop.Termination.TerminationInventoryFree)
-                {
-                    ImGui.Indent();
-                    ImGui.PushItemWidth(150f.Scale());
-
-                    ImGui.AlignTextToFramePadding();
-                    ImGui.Text(Loc.Get("ConfigTab.Termination.StopWhenInventoryFullSlots"));
-                    ImGui.SameLine();
-                    int inventoryFreeSlots = Configuration.Loop.Termination.TerminationInventoryFreeSlots;
-                    if(ImGui.InputInt("###StopWhenInventoryFullSlotsInput", ref inventoryFreeSlots, 1, 5))
-                    {
-                        Configuration.Loop.Termination.TerminationInventoryFreeSlots = Math.Clamp(inventoryFreeSlots, 0, 139);
-                        ConfigurationProfileV2.Save();
-                    }
-
-                    ImGui.PopItemWidth();
-                    ImGui.Unindent();
-                }
-
-                ImGui.Separator();
-
-                Configuration.Loop.Termination.Actions.OnGui("TerminationActions", LoopActionCategory.Termination);
-
-                ImGui.Separator();
-
-                ImGui.Text(Loc.Get("ConfigTab.Termination.OnCompletionOfAllLoops"));
-                ImGui.SameLine(0, 10);
-                ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X);
-                if (ImGui.BeginCombo("##ConfigTerminationMethod", Configuration.Loop.Termination.TerminationMethodEnum.ToLocalizedString()))
-                {
-                    foreach (TerminationMode terminationMode in Enum.GetValues(typeof(TerminationMode)))
-                        if (terminationMode != TerminationMode.Kill_PC || OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
-                            if (ImGui.Selectable(terminationMode.ToLocalizedString(), Configuration.Loop.Termination.TerminationMethodEnum == terminationMode))
-                            {
-                                Configuration.Loop.Termination.TerminationMethodEnum = terminationMode;
-                                ConfigurationProfileV2.Save();
-                            }
-
-                    ImGui.EndCombo();
-                }
-
-                if (Configuration.Loop.Termination.TerminationMethodEnum is TerminationMode.Kill_Client or TerminationMode.Kill_PC or TerminationMode.Logout)
-                {
-                    ImGui.Indent();
-                    bool keepActive = Configuration.Loop.Termination.TerminationKeepActive;
-                    if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.KeepTerminationActive"), ref keepActive))
-                    {
-                        Configuration.Loop.Termination.TerminationKeepActive = keepActive;
-                        ConfigurationProfileV2.Save();
-                    }
-
-                    ImGui.Unindent();
-                }
-            }
+            Configuration.Loop.Termination.Draw();
         }
 
         ImGui.Separator();
@@ -1522,7 +1418,7 @@ public static class ConfigTab
                 ImGui.Indent();
                 ImGuiEx.Text(string.Format(Loc.Get("ConfigTab.Multiboxing.Blocking"), MultiboxUtility.stepBlock));
 
-                if(MultiboxUtility.Config.Host)
+                if (MultiboxUtility.Config.Host)
                 {
                     unsafe
                     {
@@ -1547,7 +1443,7 @@ public static class ConfigTab
 
                         InfoProxyPartyMember* partyMembers = InfoProxyPartyMember.Instance();
 
-                        for (int i = 0; i < MultiboxUtility.Server.MAX_SERVERS; i++)
+                        foreach ((int i, ulong _, string _, ushort _) in MultiboxUtility.Server.ConnectedClients)
                         {
                             MultiboxUtility.Server.ClientInfo? info = MultiboxUtility.Server.clients[i];
 
@@ -1593,7 +1489,15 @@ public static class ConfigTab
                         using(ImRaii.Disabled(!InDungeon))
                         {
                             if(ImGui.Button($"{Loc.Get("ConfigTab.Multiboxing.ResynchronizeStep")}##MultiboxSynchronizeStep"))
+                            {
+                                if (MultiboxUtility.stepBlock)
+                                {
+                                    Plugin.indexer--;
+                                    MultiboxUtility.stepBlock = false;
+                                }
+
                                 MultiboxUtility.Server.SendStepStart();
+                            }
                         }
                         ImGui.Separator();
                     }
@@ -1603,7 +1507,76 @@ public static class ConfigTab
             }
         }
 
-        return;
+        if (ConfigurationMain.Instance.profileByPluginName.Count == 0)
+            return;
+
+        ImGui.Separator();
+        ImGui.Spacing();
+        ImGui.PushStyleVar(ImGuiStyleVar.SelectableTextAlign, new Vector2(0.5f, 0.5f));
+
+        ImGui.SetItemAllowOverlap();
+        if (ImGui.Selectable(Loc.Get("ConfigTab.PluginConfig.Header"), pluginConfigHeaderSelected, ImGuiSelectableFlags.DontClosePopups))
+            pluginConfigHeaderSelected = !pluginConfigHeaderSelected;
+
+        ImGui.PopStyleVar();
+        if (ImGui.IsItemHovered())
+            ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+
+        if (pluginConfigHeaderSelected)
+        {
+            if (!ImGui.BeginChild("##PluginConfig", new Vector2(0, 100), flags: ImGuiWindowFlags.NoBackground))
+                return;
+
+            ImGui.Columns(3, "PluginConfig_Columns");
+            string? pluginToRemove = null;
+
+            foreach ((string plugin, Guid profileGuid) in ConfigurationMain.Instance.profileByPluginName)
+            {
+                ImGui.Text(plugin);
+                ImGui.NextColumn();
+
+                using (ImRaii.ComboDisposable configCombo = ImRaii.Combo($"##Config{plugin}Combo", ConfigurationMain.Instance.GetProfileByGuid(profileGuid)?.Name ?? Loc.Get("ConfigTab.Profile.InvalidProfile")))
+                {
+                    if (configCombo)
+                        foreach (Guid key in ConfigurationMain.Instance.ConfigGuids)
+                        {
+                            ConfigurationMain.ProfileData? profile = ConfigurationMain.Instance.GetProfileByGuid(key);
+
+                            if (profile == null)
+                                continue;
+
+                            ImGui.SetItemAllowOverlap();
+                            if (ImGui.Selectable($"###{key}ConfigSelectable", key == ConfigurationMain.Instance.ActiveProfileGuid))
+                            {
+                                ConfigurationMain.Instance.profileByPluginName[plugin] = key;
+                                break;
+                            }
+
+                            ImGui.SameLine(0);
+                            ImGui.Text(profile.Name);
+                        }
+                }
+
+                ImGui.NextColumn();
+                using (ImRaii.Disabled(!ImGui.GetIO().KeyCtrl))
+                using (ImRaii.PushColor(ImGuiCol.Button, ImGuiHelper.AccentRed with { W = 0.15f.Scale() }))
+                using (ImRaii.PushColor(ImGuiCol.Text, ImGuiHelper.AccentRed))
+                using (ImRaii.PushFont(UiBuilder.IconFont))
+                {
+                    if (ImGui.Button($"{FontAwesomeIcon.TrashAlt.ToIconString()}###deleteprofileplugin{plugin}", new Vector2(28f.Scale(), 0)))
+                        pluginToRemove = plugin;
+                }
+
+                ImGui.NextColumn();
+
+            }
+
+            if(pluginToRemove != null)
+                ConfigurationMain.Instance.profileByPluginName.Remove(pluginToRemove);
+
+            ImGui.Columns(1);
+            ImGui.EndChild();
+        }
     }
 
     public static bool MakeSliderOrInput(ref int configValue, string valString, int sliderMin, int sliderMax, int inputStep = 1, int inputStepFast = 2) =>

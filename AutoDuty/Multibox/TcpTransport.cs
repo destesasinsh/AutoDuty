@@ -26,7 +26,7 @@ namespace AutoDuty.Multibox
             this.port    = port;
         }
 
-        public void StartServer(int backlog = 3)
+        public void StartServer(int backlog = MultiboxUtility.Server.MAX_SERVERS)
         {
             if (this.listener != null) 
                 return;

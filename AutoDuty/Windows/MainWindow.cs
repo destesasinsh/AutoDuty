@@ -300,7 +300,7 @@ public sealed class MainWindow : Window, IDisposable
     {
         DrawPopup();
 
-        if(false && DalamudReflector.IsOnStaging())
+        if(DalamudHelper.IsOnStaging())
         {
             ImGui.TextColored(GradientColor.Get(ImGuiHelper.ExperimentalColor, ImGuiHelper.ExperimentalColor2, 500), "NOT SUPPORTED ON STAGING.");
             ImGui.Text("Please type in \"/xlbranch\" and pick Release, then restart the game.");

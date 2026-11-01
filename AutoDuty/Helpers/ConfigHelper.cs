@@ -217,7 +217,7 @@ namespace AutoDuty.Helpers
         {
             instance ??= ConfigurationMain.Instance.GetCurrentConfig;
 
-            PropertyInfo[] properties = instance.GetType().GetProperties(All | BindingFlags.DeclaredOnly);
+            PropertyInfo[] properties = instance.GetType().GetProperties(instance.GetType().IsAssignableTo(typeof(LoopActionConfig)) ? All : All | BindingFlags.DeclaredOnly);
             if (properties.Length == 0)
                 return;
 
@@ -234,7 +234,6 @@ namespace AutoDuty.Helpers
 
                     if (enumerableType != null)
                     {
-
                         if (enumerableType.IsGenericType && enumerableType.GetGenericTypeDefinition().IsAssignableTo(typeof(Nullable<>)))
                             enumerableType = enumerableType.GetGenericArguments().First();
 
@@ -278,7 +277,6 @@ namespace AutoDuty.Helpers
                 string subConfig = configName[..dotIndex];
                 Svc.Log.Debug("Subconfig found: " + subConfig);
 
-
                 if (subConfig[0] == '[')
                     if (type.IsAssignableTo(typeof(IList)))
                     {
@@ -294,7 +292,7 @@ namespace AutoDuty.Helpers
                             }
 
                         foreach (object o in valueList)
-                            if (o.GetType().Name.Equals(indexString))
+                            if (o.GetType().Name.Equals(indexString, StringComparison.InvariantCultureIgnoreCase))
                                 return FindConfig(configName[(dotIndex + 1)..], o.GetType(), o);
                     }
 

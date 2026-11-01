@@ -9,6 +9,7 @@
     using ECommons.GameFunctions;
     using ECommons.PartyFunctions;
     using FFXIVClientStructs.FFXIV.Client.UI.Arrays;
+    using FFXIVClientStructs.FFXIV.Client.UI.Info;
 
     public static class PartyHelper
     {
@@ -112,7 +113,7 @@
             return UniversalParty.Members.Any(upm => upm.ContentID == cid);
         }
 
-        public static void LeaveParty() => 
-            Chat.ExecuteCommand("/partycmd leave");
+        public static unsafe bool LeaveParty() =>
+            InfoProxyPartyMember.Instance()->LeaveParty();
     }
 }

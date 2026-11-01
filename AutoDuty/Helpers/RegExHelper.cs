@@ -15,6 +15,9 @@ namespace AutoDuty.Helpers
 
         [GeneratedRegex(@"""([^""]+)""|\S+", RegexOptions.CultureInvariant)]
         public static partial Regex ArgumentParserRegex();
+
+        [GeneratedRegex(@"([0-9]+)", RegexOptions.CultureInvariant)]
+        public static partial Regex NumberParserRegex();
     }
 
     public static class PathIdentifiers

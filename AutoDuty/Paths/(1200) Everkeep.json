@@ -2,15 +2,18 @@
   "Actions": [
     {
       "Tag": "None",
-      "Name": "MoveTo",
+      "Name": "Boss",
       "Position": {
-        "X": 100.06962,
-        "Y": 0.0,
-        "Z": 100.73334
+        "X": 100.0,
+        "Y": -6.0573E-16,
+        "Z": 95.0
       },
-      "Arguments": [],
+      "Arguments": [
+        ""
+      ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     }
   ],
   "Meta": {
@@ -19,6 +22,10 @@
       {
         "Version": 304,
         "Change": "Version update"
+      },
+      {
+        "Version": 378,
+        "Change": "Replaced with Boss Step"
       }
     ],
     "Notes": []

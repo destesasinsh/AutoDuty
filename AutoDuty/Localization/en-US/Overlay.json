@@ -11,6 +11,7 @@
       "TripleTriad": "Triple Triad",
       "Armoire": "Armoire",
       "Glamour": "Glamour",
+      "Shop": "Shop",
       "AutoRetainer": "Retainers",
       "AutoRetainerMulti": "AR Multi",
       "Discard": "Discard",
@@ -19,7 +20,8 @@
       "ConsumeItems": "Consume",
       "ExecuteCommands": "Commands",
       "Wait": "Wait(?)",
-      "PlaySound": "Sound"
+      "PlaySound": "Sound",
+      "Retire": "Retire"
     },
     "Tooltip": {
       "TurnIn": "Click to Goto GC Turnin and Invoke AutoRetainer's GC Turnin",
@@ -29,7 +31,8 @@
       "ExtractMissing": "Materia Extraction requires having completed quest: Forging the Spirit",
       "Repair": "Click to Repair",
       "Equip": "Click to Equip Gear",
-      "Coffers": "Click to open coffers"
+      "Coffers": "Click to open coffers",
+      "Shop": "Click to buy items from configured shops"
     },
     "Popup": {
       "MissingPlugin": "Missing Plugin",

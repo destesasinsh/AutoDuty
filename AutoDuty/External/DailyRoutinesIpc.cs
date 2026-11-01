@@ -28,12 +28,12 @@ internal static class DailyRoutinesIpc
 
     internal static string PortaDecumanaHelpText =>
         IPCSubscriber_Common.IsReady("SkipCutscene")
-            ? "SkipCutscene detected. Please keep it actually on."
+            ? Loc.Get("MainTab.CutsceneSkip.SkipCutscene")
             : IPCSubscriber_Common.IsReady("Skippy")
-                ? "Skippy detected. Please keep it enabled for Porta Decumana."
+                ? Loc.Get("MainTab.CutsceneSkip.Skippy")
                 : IsDailyRoutinesEnabled
-                    ? "DailyRoutines detected. AutoDuty will temporarily enable AutoCutsceneSkip while running Porta Decumana."
-                    : "Porta Decumana requires SkipCutscene, Skippy, or DailyRoutines support.";
+                    ? Loc.Get("MainTab.CutsceneSkip.DailyRoutines")
+                    : Loc.Get("MainTab.CutsceneSkip.Required");
 
     internal static void Initialize(IDalamudPluginInterface pluginInterface)
     {

@@ -43,10 +43,10 @@
       "UseGCAetheryteTicket": "使用大国防联军传送券"
     },
     "Armoire": {
-      "Help": "在两次循环之间将物品存入收藏柜"
+      "Help": "将物品存入收藏柜"
     },
     "Glamour": {
-      "Help": "在两次循环之间将装备存入投影台"
+      "Help": "将装备存入投影台"
     },
     "Desynth": {
       "OnlySkillUps": "仅提升分解熟练度时分解",
@@ -59,7 +59,7 @@
       "Categories": "分解类别"
     },
     "Coffers": {
-      "Help": "AutoDuty 将在两次循环之间开启装备箱，包括骑士武具等物品",
+      "Help": "自动开启装备箱，包括骑士武具等物品",
       "OpenCoffersWithGearset": "使用指定套装开启装备箱：",
       "CurrentGearset": "当前套装",
       "UseBlacklist": "使用黑名单",
@@ -70,12 +70,14 @@
       "AddCoffer": "添加装备箱"
     },
     "Retire": {
-      "LifestreamNotRegistered": ""
+      "LifestreamNotRegistered": "尚未在 Lifestream 中登记",
+      "AdjustForDutyModes": "根据当前副本模式调整返回地点",
+      "AdjustForDutyModesHelp": "冒险者小队模式：返回小队驻地。\n斗兽奇弈模式：不执行返回操作。"
     },
     "ConsumeItems": {
-      "AutoConsumeHelp": "AutoDuty 将在运行时和每次循环间使用这些物品（如果状态不存在）",
+      "AutoConsumeHelp": "执行此操作时，若相应状态不存在，则使用这些物品",
       "IgnoreStatus": "忽略状态",
-      "IgnoreStatusHelp": "AutoDuty 将在运行时和每次循环间始终使用这些物品（即使状态已存在）",
+      "IgnoreStatusHelp": "执行此操作时，即使相应状态已存在，也使用这些物品",
       "MinTimeRemaining": "最短剩余时间",
       "MinTimeRemainingHelp": "如果状态剩余时间少于此值（分钟），将使用这些物品",
       "ItemName": "物品名称",
@@ -89,6 +91,10 @@
       "WaitTime": "等待时间（毫秒）",
       "WaitTimeHelp": "等待 X 毫秒后继续执行。",
       "WaitOnPlugins": "等待指定插件完成其操作"
+    },
+    "Shop": {
+      "Help": "按照 Knightshopper 中的设置，在各商店购买物品",
+      "CurrencySelection": "货币"
     }
   }
 }

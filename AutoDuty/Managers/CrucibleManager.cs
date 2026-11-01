@@ -14,6 +14,7 @@ namespace AutoDuty.Managers
     using System;
     using System.Collections.Generic;
     using System.Numerics;
+    using FFXIVClientStructs.FFXIV.Client.Game;
     using static Data.Classes;
     using Screens = CrucibleUi.Screens;
 
@@ -64,10 +65,10 @@ namespace AutoDuty.Managers
                 _taskManager.EnqueueDelay(2000);
             }
 
-            _taskManager.Enqueue(() => this.boardStep = 0, "RegisterCrucible-OpenBoard");
-            _taskManager.Enqueue(() => this.OpenBoard(board), "RegisterCrucible-OpenBoard", new TaskManagerConfiguration(30000));
+            _taskManager.Enqueue(() => this.boardStep = 0,                                         "RegisterCrucible-OpenBoard");
+            _taskManager.Enqueue(() => this.teamSetup.Start(Configuration.Meta.Crucible.TeamMode), "RegisterCrucible-Team-Setup");
 
-            _taskManager.Enqueue(() => this.teamSetup.Start(AutoDuty.Configuration.Meta.Crucible.TeamMode), "RegisterCrucible-Team-Setup");
+            _taskManager.Enqueue(() => this.OpenBoard(board), "RegisterCrucible-OpenBoard", new TaskManagerConfiguration(300_000));
             _taskManager.Enqueue(() =>
                                  {
                                      bool done = this.teamSetup.Update();
@@ -84,7 +85,12 @@ namespace AutoDuty.Managers
                                  }, "RegisterCrucible-TeamCheck");
 
             AtkUnitBase* addon = null;
-            _taskManager.Enqueue(() => GenericHelpers.TryGetAddonByName(CrucibleUi.BoardLayout, out addon) && GenericHelpers.IsAddonReady(addon), "RegisterCrucible-Challenge");
+            _taskManager.Enqueue(() => GenericHelpers.TryGetAddonByName(CrucibleUi.BoardLayout, out addon) && GenericHelpers.IsAddonReady(addon),                                                    "RegisterCrucible-Challenge");
+            _taskManager.Enqueue(() =>
+                                 {
+                                     if (QuestManager.IsQuestComplete(71045u))
+                                         Screens.StageDetail.SetDegree(addon, Configuration.Meta.Crucible.Degree);
+                                 }, "RegisterCrucible-ChallengeDegrees");
             _taskManager.Enqueue(() =>
                                  {
                                      Screens.StageDetail.Confirm(addon);
@@ -105,7 +111,7 @@ namespace AutoDuty.Managers
 
             if (DateTime.UtcNow - this.challengedAt <= TimeSpan.FromSeconds(5) && CrucibleUi.TryReady(CrucibleUi.YesNo, out AtkUnitBase* smallTeam))
             {
-                Svc.Log.Info("[Crucible] Team is smaller than ten; confirming the challenge anyway");
+                Svc.Log.Info("[Crucible] Team is smaller than a full team; confirming the challenge anyway");
                 Screens.Prompt.Yes(smallTeam);
                 this.challengedAt = DateTime.MinValue;
             }
@@ -113,24 +119,29 @@ namespace AutoDuty.Managers
             return false;
         }
 
-        private static string? challengeText;
-
         private static string ChallengeText =>
-            challengeText ??= Svc.Data.GetExcelSheet<RawRow>(name: "custom/009/CtsXbmEntrance_00976").TryGetRow(1, out RawRow row)
+            field ??= Svc.Data.GetExcelSheet<RawRow>(name: "custom/009/CtsXbmEntrance_00976").TryGetRow(1, out RawRow row)
+                                  ? row.ReadStringColumn(1).ExtractText().TrimEnd('.', '。', ' ')
+                                  : string.Empty;
+        private static string BestiaryText =>
+            field ??= Svc.Data.GetExcelSheet<RawRow>(name: "custom/009/CtsXbmEntrance_00976").TryGetRow(3, out RawRow row)
                                   ? row.ReadStringColumn(1).ExtractText().TrimEnd('.', '。', ' ')
                                   : string.Empty;
 
         private static string QuestAlternativeText =>
-            challengeText ??= Svc.Data.GetExcelSheet<CustomTalk>().TryGetRow(721872, out CustomTalk row)
+            field ??= Svc.Data.GetExcelSheet<CustomTalk>().TryGetRow(721872, out CustomTalk row)
                                   ? row.MainOption.ExtractText().TrimEnd('.', '。', ' ')
                                   : string.Empty;
 
-        private static unsafe void ChooseChallenge(AtkUnitBase* menu)
+        private static unsafe void ChooseSelectStringText(AtkUnitBase* menu, bool scanRequired)
         {
-            int index = ChallengeText.Length > 0 ? CrucibleUi.SelectStringIndex(menu, ChallengeText) : -1;
+            string text  = scanRequired ? BestiaryText : ChallengeText;
+            Svc.Log.Debug("[Crucible] Select String " + text);
+
+            int index = text.Length > 0 ? CrucibleUi.SelectStringIndex(menu, text) : -1;
             if (index < 0)
             {
-                Svc.Log.Warning($"[Crucible] Lauda's menu has no \"{ChallengeText}\" option");
+                Svc.Log.Warning($"[Crucible] Lauda's menu has no \"{text}\" option");
                 return;
             }
 
@@ -139,24 +150,34 @@ namespace AutoDuty.Managers
 
         private unsafe bool OpenBoard(uint board)
         {
-            if (CrucibleUi.IsOpen(CrucibleUi.TeamWindow))
-                return true;
+            void DebugLog(string message) => 
+                Svc.Log.Debug($"Crucible Open Board: {message}");
 
-            if (!EzThrottler.Throttle("CrucibleOpenBoard", 300))
+            if (CrucibleUi.IsOpen(CrucibleUi.TeamWindow))
+            {
+                DebugLog("Done");
+                return true;
+            }
+
+            if (!EzThrottler.Throttle("CrucibleOpenBoard", 250))
                 return false;
 
             if (CrucibleUi.TryReady(CrucibleUi.BoardList, out AtkUnitBase* list))
             {
+                DebugLog("Board List available");
+
                 if (this.boardStep == 0)
                 {
+                    DebugLog("Board List Highlight");
                     Screens.StageList.Highlight(list, board);
                     this.boardStep = 1;
                 }
                 else
                 {
+                    DebugLog("Board List Select");
                     Screens.StageList.Open(list, board);
                     this.boardStep = 0;
-                    EzThrottler.Throttle("CrucibleOpenBoard", 1000, true);
+                    EzThrottler.Throttle("CrucibleOpenBoard", 250, true);
                 }
 
                 return false;
@@ -164,6 +185,8 @@ namespace AutoDuty.Managers
 
             if (CrucibleUi.TryReady("SelectIconString", out AtkUnitBase* iconMenu))
             {
+                DebugLog("Pre board Select");
+
                 AddonSelectIconString * select = (AddonSelectIconString*) iconMenu;
                 ref PopupMenu           iconPopMenu = ref select->PopupMenu.PopupMenu;
                 if (iconPopMenu.EntryNames == null)
@@ -175,22 +198,32 @@ namespace AutoDuty.Managers
                         continue;
 
                     string entry = MemoryHelper.ReadSeStringNullTerminated((nint)iconPopMenu.EntryNames[i].Value).TextValue;
-                    
-                    if(entry.Contains(QuestAlternativeText, StringComparison.OrdinalIgnoreCase))
+
+                    DebugLog($"Pre board Select. Entry: {entry} | {QuestAlternativeText} | {entry.Contains(QuestAlternativeText, StringComparison.OrdinalIgnoreCase)}");
+
+                    if (entry.Contains(QuestAlternativeText, StringComparison.OrdinalIgnoreCase))
                     {
                         AddonHelper.FireCallBack(iconMenu, true, i);
                         break;
                     }
                 }
 
-                EzThrottler.Throttle("CrucibleOpenBoard", 600, true);
+                EzThrottler.Throttle("CrucibleOpenBoard", 250, true);
                 return false;
+            }
+
+            if (CrucibleUi.TryReady(CrucibleUi.BestiaryWindow, out AtkUnitBase* notebook))
+            {
+                DebugLog("Bestiary Notebook for scan");
+                if(this.teamSetup.Scan(notebook, DateTime.UtcNow))
+                    Screens.Notebook.Close(notebook);
             }
 
             if (CrucibleUi.TryReady("SelectString", out AtkUnitBase* menu))
             {
-                ChooseChallenge(menu);
-                EzThrottler.Throttle("CrucibleOpenBoard", 600, true);
+                DebugLog("Main Select");
+                ChooseSelectStringText(menu, CrucibleTeamSetup.ScanRequired());
+                EzThrottler.Throttle("CrucibleOpenBoard", 250, true);
                 return false;
             }
 
@@ -207,7 +240,7 @@ namespace AutoDuty.Managers
                 return false;
 
             ObjectHelper.InteractWithObject(lauda, false);
-            EzThrottler.Throttle("CrucibleOpenBoard", 2000, true);
+            EzThrottler.Throttle("CrucibleOpenBoard", 200, true);
             return false;
         }
 

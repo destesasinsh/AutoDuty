@@ -16,7 +16,7 @@ namespace AutoDuty.Helpers
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using ECommons.IPC.Subscribers.LifestreamIPC;
+    using ECommons.IPC.Subscribers.Lifestream;
     using IPC;
 
     internal static unsafe class TeleportHelper

@@ -137,6 +137,34 @@ namespace AutoDuty.Helpers
             ImGui.SameLine();
         }
 
+        internal static void HelpMarker(string text, FontAwesomeIcon icon = FontAwesomeIcon.InfoCircle, Vector4? color = null)
+        {
+            using ImRaii.ColorDisposable? col = ImRaii.PushColor(ImGuiCol.TextDisabled, color);
+            ImGui.SameLine();
+
+            using (ImRaii.PushFont(UiBuilder.IconFont))
+                ImGui.TextDisabled(icon.ToIconString());
+
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                using (ImRaii.Tooltip())
+                {
+                    using (ImRaii.TextWrapPos(ImGui.GetFontSize() * 35.0f))
+                        ImGui.Text(text);
+                }
+        }
+
+        public static Vector4 GetRandomColor(this string input)
+        {
+            uint hash = 5381;
+            foreach (char c in input)
+                hash = (hash << 5) + hash + c;
+            float hue = hash % 360 / 360.0f;
+
+            float r = 0, g = 0, b = 0;
+            ImGui.ColorConvertHSVtoRGB(hue, 0.7f, 0.9f, ref r, ref g, ref b);
+            return new Vector4(r, g, b, 1.0f);
+        }
+
         internal static EndUnconditionally RequiresPlugin(ExternalPlugin plugins, string id, string? message = null, bool inline = false, bool write = true)
         {
             if (plugins == ExternalPlugin.None)
@@ -183,12 +211,12 @@ namespace AutoDuty.Helpers
                                                   ImGui.SameLine(0, 5);
                                                   if (installablePlugins != ExternalPlugin.None)
                                                   {
-                                                      if (ImGui.Button($"Install##InstallExternalPlugin_{plugins}_{id}"))
+                                                      if (ImGui.Button($"{Loc.Get("InfoTab.Install")}##InstallExternalPlugin_{plugins}_{id}"))
                                                           PluginInstaller.InstallPlugin(installablePlugins);
                                                   }
                                                   else
                                                   {
-                                                      ImGui.TextDisabled("(manual install)");
+                                                      ImGui.TextDisabled(Loc.Get("InfoTab.ManualInstall"));
                                                   }
                                               }, false);
             }
@@ -212,6 +240,50 @@ namespace AutoDuty.Helpers
             }
         }
 
+
+        /// <summary>
+        /// Compute the distance between two strings.
+        /// </summary>
+        public static int ComputeLevenshteinDistance(string s, string t)
+        {
+            int    n = s.Length;
+            int    m = t.Length;
+            int[,] d = new int[n + 1, m + 1];
+
+            // Step 1
+            if (n == 0)
+                return m;
+
+            if (m == 0)
+                return n;
+
+            // Step 2
+            for (int i = 0; i <= n; d[i, 0] = i++)
+            {
+            }
+
+            for (int j = 0; j <= m; d[0, j] = j++)
+            {
+            }
+
+            // Step 3
+            for (int i = 1; i <= n; i++)
+            {
+                //Step 4
+                for (int j = 1; j <= m; j++)
+                {
+                    // Step 5
+                    int cost = (t[j - 1] == s[i - 1]) ? 0 : 1;
+
+                    // Step 6
+                    d[i, j] = Math.Min(
+                                       Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
+                                       d[i - 1, j - 1] + cost);
+                }
+            }
+            // Step 7
+            return d[n, m];
+        }
     }
 
     public static class DateWidget

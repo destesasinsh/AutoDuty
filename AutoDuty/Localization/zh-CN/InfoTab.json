@@ -1,31 +1,33 @@
 {
-    "InfoTab":  {
-                    "PunishDiscord":  "Punish Discord",
-                    "Install":  "安装",
-                    "CombatPluginsNote":  "请选择你最习惯的一个，可在设置中切换：",
-                    "PluginDesc":  {
-                                       "BossModFights":  "自动处理 Boss 机制与战斗逻辑",
-                                       "VNavMovement":  "核心依赖，负责自动寻路与角色移动",
-                                       "BossModRotations":  "BossMod 自带的基础输出循环",
-                                       "WrathCombo":  "Puni.sh 出品的专用循环插件",
-                                       "RotationSolverReborn":  "RSR 输出循环插件",
-                                       "AntiAFK":  "防止长时间挂机被移出副本",
-                                       "AutoRetainer":  "自动雇员 (支持自动上交军票筹备与清理背包)",
-                                       "Avarice":  "显示身位指示器",
-                                       "Lifestream":  "强大的自动传送工具",
-                                       "Pandora":  "自动开启宝箱与切换坦克姿态",
-                                       "Gearsetter":  "自动推荐并更换最优装备",
-                                       "Stylist":  "自动推荐并更换最优装备",
-                                       "GlamourLog":  "管理投影台和收藏柜"
-                                   },
-                    "Title":  "信息",
-                    "SetupGuideIntro":  "有关 AutoDuty 及其依赖项的一般设置帮助，请查看以下的设置指南以获取更多信息：",
-                    "InformationAndSetup":  "设置指南",
-                    "PathStatusInfo":  "上述指南还包含每个路径的状态信息，例如路径成熟度、模块成熟度和各路径的一般一致性。您还可以查看附加说明或需要注意的事项，以确保循环成功。对于对 AD 的请求、问题或贡献，请使用 AutoDuty 的 GitHub 提交问题：",
-                    "GitHubIssues":  "GitHub 提交问题",
-                    "DiscordInvite":  "其他所有问题，请加入 Discord!",
-                    "RequiredPlugins":  "必须插件",
-                    "CombatPlugins":  "战斗插件",
-                    "RecommendedPlugins":  "推荐插件"
-                }
+  "InfoTab": {
+    "PunishDiscord": "Punish Discord",
+    "Install": "安装",
+    "CombatPluginsNote": "请选择你最习惯的一个，可在设置中切换：",
+    "PluginDesc": {
+      "BossModFights": "自动处理 Boss 机制与战斗逻辑",
+      "VNavMovement": "核心依赖，负责自动寻路与角色移动",
+      "BossModRotations": "BossMod 自带的基础输出循环",
+      "WrathCombo": "Puni.sh 出品的专用循环插件",
+      "RotationSolverReborn": "RSR 输出循环插件",
+      "AntiAFK": "防止长时间挂机被移出副本",
+      "AutoRetainer": "自动雇员 (支持自动上交军票筹备与清理背包)",
+      "Avarice": "显示身位指示器",
+      "Lifestream": "强大的自动传送工具",
+      "Pandora": "自动开启宝箱与切换坦克姿态",
+      "Gearsetter": "自动推荐并更换最优装备",
+      "Stylist": "自动推荐并更换最优装备",
+      "GlamourLog": "管理投影台和收藏柜",
+      "AEAssist": "AEAssist 输出循环插件，需手动安装"
+    },
+    "Title": "信息",
+    "SetupGuideIntro": "有关 AutoDuty 及其依赖项的一般设置帮助，请查看以下的设置指南以获取更多信息：",
+    "InformationAndSetup": "设置指南",
+    "PathStatusInfo": "上述指南还包含每个路径的状态信息，例如路径成熟度、模块成熟度和各路径的一般一致性。您还可以查看附加说明或需要注意的事项，以确保循环成功。对于对 AD 的请求、问题或贡献，请使用 AutoDuty 的 GitHub 提交问题：",
+    "GitHubIssues": "GitHub 提交问题",
+    "DiscordInvite": "其他所有问题，请加入 Discord!",
+    "RequiredPlugins": "必须插件",
+    "CombatPlugins": "战斗插件",
+    "RecommendedPlugins": "推荐插件",
+    "ManualInstall": "手动安装"
+  }
 }

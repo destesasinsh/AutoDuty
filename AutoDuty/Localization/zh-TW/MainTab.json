@@ -40,9 +40,13 @@
     "Busy": "忙碌中...",
     "RequiresVNavmeshAlt": "AutoDuty 需要安裝並載入 vnavmesh 插件以進行正確的導航與移動。請新增第三方倉庫：\nhttps://puni.sh/api/repository/veyn",
     "RequiresBossModAlt": "AutoDuty 需要安裝並載入 BossMod 插件以正確處理機制。請新增第三方倉庫：\nhttps://puni.sh/api/repository/veyn",
+    "DungeonsRemaining": "剩餘可執行副本次數: {0}",
+    "DungeonsRemainingExplanation": "估算在達到每日 100 次副本上限前，還能執行多少次副本。",
+    "CurrentVariantPath": "目前的多變迷宮路線",
     "Modes": {
       "Looping": "循環模式(單副本掛機)",
-      "Playlist": "任務列表模式"
+      "Playlist": "任務列表模式",
+      "NoviceHall": "初心者學堂"
     },
     "DutyModes": {
       "None": "無",
@@ -52,11 +56,62 @@
       "Regular": "迷宮挑戰 (排本)",
       "Trial": "討伐殲滅戰 (排本)",
       "Raid": "大型任務 (排本)",
-      "Variant": "異聞迷宮"
+      "Variant": "異聞迷宮",
+      "NoviceHall": "初心者學堂",
+      "Crucible": "鬥獸奇弈"
+    },
+    "Crucible": {
+      "Team": "鬥獸奇弈隊伍",
+      "Familiars": "使魔 {0}/{1}",
+      "Familiar": "使魔",
+      "Rank": "階級",
+      "CustomFull": "隊伍已滿（上限 {0}）\n取消勾選一隻後才能選擇其他使魔",
+      "ClearRanks": "清除已儲存的階級",
+      "ClearRanksHelp": "清除記錄的階級\n按住 Ctrl 並點擊",
+      "NoFamiliars": "尚未得知任何使魔。請在勞達處開啟隊伍或魔獸圖鑑，讓 AutoDuty 讀取資料。",
+      "Menus": "棋盤選單",
+      "TableLegend": "有底色：此模式會帶入的隊伍・將滑鼠移至名稱上可查看能力值",
+      "TableLegendCustom": "已勾選：將帶入的隊伍・將滑鼠移至名稱上可查看能力值",
+      "NotSeen": "尚未讀取階級\n下次設定隊伍時從魔獸圖鑑讀取",
+      "Modes": {
+        "Recommended": "推薦",
+        "Leveling": "培育",
+        "Custom": "自訂"
+      },
+      "ModesHelp": {
+        "Recommended": "選擇階級最高的使魔\n階級相同時優先選擇能力值較高者",
+        "Leveling": "選擇階級最低的使魔，經驗值較少者優先\n每場戰鬥也會依相同順序選擇出戰使魔",
+        "Custom": "選擇下方勾選的使魔\n最多 10 隻"
+      },
+      "Toggles": {
+        "FightPicks": "選擇出戰使魔",
+        "Loot": "戰利品與結算",
+        "Treasure": "寶藏",
+        "Shop": "商店",
+        "Rest": "在營地休息",
+        "Items": "治療物品",
+        "MenusWithoutRun": "不執行 AutoDuty，僅操作選單（測試）"
+      },
+      "TogglesHelp": {
+        "FightPicks": "每場戰鬥最多選擇 3 隻使魔並開始戰鬥\n無法戰鬥的使魔會被略過",
+        "Loot": "戰鬥後取得所有戰利品\n在結算畫面按下繼續",
+        "Treasure": "選擇一項寶藏，優先順序為治療、防禦、傷害",
+        "Shop": "依序花費硬幣購買治療物品、魔獸裝備及一份飼料\n完成後離開商店",
+        "Rest": "讓最多 2 隻 HP 低於 60% 的使魔休息\n若未選擇使魔，則改為讓玩家恢復 90% HP",
+        "Items": "HP 過低時使用治療物品\n戰鬥中：低於 40%・棋盤上：低於 60%",
+        "MenusWithoutRun": "用於不載入路徑的測試\n與勞達交談後會設定隊伍、挑戰棋盤並開始\n位於棋盤上時，可自行移動並讓上述選單自動執行"
+      }
     },
     "LevelingModes": {
       "None": "無",
+      "Support": "劇情輔助器",
+      "Trust_Group": "親信戰友（培育隊員）",
+      "Trust_Solo": "親信戰友（僅培育自己）",
       "Auto": "自動"
+    },
+    "Playlist": {
+      "DeleteHelp": "刪除已儲存的播放清單\n按住 Ctrl 以啟用",
+      "SaveHelp": "以輸入的名稱儲存目前播放清單\n按住 Ctrl 以啟用"
     }
   }
 }

@@ -23,7 +23,7 @@ namespace AutoDuty.Helpers
 
             public static bool PositionalChanged(out Positional positional)
             {
-                if (avariceReady && Configuration is { DutyConfig: { AutoManageBossModAISettings: true, BossMod.PositionalAvarice: true } })
+                if (avariceReady && Configuration is { DutyConfig: { AutoManageBossModAISettings: true, BossMod.PositionalRoleBased: true, BossMod.PositionalAvarice: true } })
                 {
                     positional = Positional.Any;
 

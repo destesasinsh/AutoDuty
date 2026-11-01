@@ -56,7 +56,7 @@ namespace AutoDuty.Windows
                     }
                     else
                     {
-                        ImGui.TextDisabled("Manual");
+                        ImGui.TextDisabled(Loc.Get("InfoTab.ManualInstall"));
                         id++;
                     }
                 }
@@ -97,7 +97,7 @@ namespace AutoDuty.Windows
             PluginInstallLine(ExternalPlugin.BossMod,              Loc.Get("InfoTab.PluginDesc.BossModRotations"));
             PluginInstallLine(ExternalPlugin.WrathCombo,           Loc.Get("InfoTab.PluginDesc.WrathCombo"));
             PluginInstallLine(ExternalPlugin.RotationSolverReborn, Loc.Get("InfoTab.PluginDesc.RotationSolverReborn"));
-            PluginInstallLine(ExternalPlugin.AEAssist,             "AEAssist auto rotation plugin (manual install)");
+            PluginInstallLine(ExternalPlugin.AEAssist,             Loc.Get("InfoTab.PluginDesc.AEAssist"));
 
             ImGui.Columns(1);
             ImGui.NewLine();

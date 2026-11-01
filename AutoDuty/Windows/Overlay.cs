@@ -30,7 +30,10 @@ public class Overlay : Window
     public override void PreDraw()
     {
         base.PreDraw();
-        
+　　　　　if (AutoDuty.Configuration.Overlay.NoBG)
+   　　　　 this.Flags |= ImGuiWindowFlags.NoBackground;
+　　　　　else
+   　　　　 this.Flags &= ~ImGuiWindowFlags.NoBackground;        
         int heightDiff = (this.lineHeight - this.lineHeightPrev);
 
         if (AutoDuty.Configuration.Overlay.AnchorBottom && heightDiff != 0)
@@ -105,7 +108,7 @@ public class Overlay : Window
                                     if (Plugin.Stage == 0)
                                     {
                                         if (!Plugin.States.HasFlag(PluginState.Navigating) && !Plugin.States.HasFlag(PluginState.Looping))
-                                            if (ImGui.Button("启动"))
+                                            if (ImGui.Button(Loc.Get("Common.Start")))
                                             {
                                                 Plugin.LoadPath();
                                                 Plugin.Run(Svc.ClientState.TerritoryType);

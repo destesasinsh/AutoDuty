@@ -12,7 +12,8 @@
         "false"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -26,7 +27,8 @@
         "2500"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -40,7 +42,8 @@
         "true"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -54,7 +57,8 @@
         "true"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -68,7 +72,8 @@
         "false"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -82,7 +87,8 @@
         "2500"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -96,7 +102,8 @@
         "true"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -110,7 +117,8 @@
         "true"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "Revival",
@@ -122,7 +130,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -134,7 +143,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -146,7 +156,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": "Chirurgeon General"
+      "Note": "Chirurgeon General",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -158,7 +169,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -172,7 +184,8 @@
         "false"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -184,7 +197,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -198,7 +212,8 @@
         "true"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -212,7 +227,8 @@
         "IsReady"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -226,7 +242,8 @@
         "false"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -240,7 +257,8 @@
         "2500"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "Treasure",
@@ -252,7 +270,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -266,7 +285,8 @@
         "true"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -280,7 +300,8 @@
         "true"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -294,7 +315,8 @@
         "false"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -308,7 +330,8 @@
         "2500"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "Treasure",
@@ -320,7 +343,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -332,7 +356,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -346,7 +371,8 @@
         "true"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "Revival",
@@ -358,7 +384,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -370,7 +397,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -382,7 +410,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": "Headsman"
+      "Note": "Headsman",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -396,7 +425,8 @@
         "false"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -410,7 +440,8 @@
         "2500"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "Treasure",
@@ -422,7 +453,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -436,7 +468,8 @@
         "true"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -450,7 +483,8 @@
         "true"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -462,7 +496,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -476,7 +511,8 @@
         "true"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -490,7 +526,8 @@
         "IsReady"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -504,7 +541,8 @@
         "false"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -518,7 +556,8 @@
         "2500"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "Treasure",
@@ -530,7 +569,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -542,7 +582,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "W2W",
@@ -556,7 +597,8 @@
         "true"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -568,7 +610,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -582,7 +625,8 @@
         "false"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "Revival",
@@ -594,7 +638,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -606,7 +651,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -617,10 +663,11 @@
         "Z": 121.73173
       },
       "Arguments": [
-        "false"
+        ""
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -634,7 +681,8 @@
         "IsReady"
       ],
       "Conditions": [],
-      "Note": ""
+      "Note": "",
+      "Flags": "None"
     },
     {
       "Tag": "None",
@@ -646,7 +694,8 @@
       },
       "Arguments": [],
       "Conditions": [],
-      "Note": "Immortal Remains"
+      "Note": "Immortal Remains",
+      "Flags": "None"
     }
   ],
   "Meta": {
@@ -663,6 +712,10 @@
       {
         "Version": 304,
         "Change": "Version update"
+      },
+      {
+        "Version": 375,
+        "Change": "B3 entrance smoothened"
       }
     ],
     "Notes": []

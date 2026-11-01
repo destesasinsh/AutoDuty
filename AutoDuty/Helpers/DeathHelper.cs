@@ -45,6 +45,17 @@ namespace AutoDuty.Helpers
                     case PlayerLifeState.Revived:
                         SchedulerHelper.DescheduleAction(nameof(OnDeath));
                         DebugLog("Player is Revived changing state to Revived");
+
+                        if (CrucibleManager.IsCrucibleTerritory(Plugin.currentTerritoryType))
+                        {
+                            if (VNavmesh_IPCSubscriber.Path_IsRunning)
+                                VNavmesh_IPCSubscriber.Path_Stop();
+                            BossMod_IPCSubscriber.SetMovement(true);
+                            Plugin.Stage = Stage.Idle;
+                            Plugin.Stage = Stage.Reading_Path;
+                            break;
+                        }
+
                         oldIndex              = Plugin.indexer;
                         findShortcutStartTime = Environment.TickCount;
                         shortcutUseLocation   = null;
@@ -75,7 +86,7 @@ namespace AutoDuty.Helpers
             if (Plugin.taskManager.IsBusy)
                 Plugin.taskManager.Abort();
             
-            if (AutoDuty.Configuration.Meta.DutyModeEnum.EqualsAny(DutyMode.Regular, DutyMode.Trial, DutyMode.Raid, DutyMode.Variant))
+            if (Configuration.Meta.DutyModeEnum.EqualsAny(DutyMode.Regular, DutyMode.Trial, DutyMode.Raid, DutyMode.Variant))
             {
                 bool yesNo = GenericHelpers.TryGetAddonByName("SelectYesno", out AtkUnitBase* addonSelectYesno) && GenericHelpers.IsAddonReady(addonSelectYesno);
                 bool dead  = PartyHelper.PartyDead();

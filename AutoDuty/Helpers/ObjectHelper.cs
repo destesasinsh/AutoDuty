@@ -33,6 +33,7 @@ namespace AutoDuty.Helpers
         internal static IGameObject? GetObjectByObjectKind(ObjectKind objectKind) => Svc.Objects.OrderBy(GetDistanceToPlayer).FirstOrDefault(o => o.ObjectKind == objectKind);
 
         internal static List<IGameObject>? GetObjectsByRadius(float radius) => [.. Svc.Objects.OrderBy(GetDistanceToPlayer).Where(o => GetDistanceToPlayer(o) <= radius)];
+        internal static List<IGameObject>? GetObjectsByRadius(Vector3 position, float radius) => [.. Svc.Objects.OrderBy(p => GetDistanceToPosSquared(position, p.Position)).Where(o => GetDistanceToPosSquared(position, o.Position) <= radius*radius)];
 
         internal static IGameObject? GetObjectByRadius(float radius) => Svc.Objects.OrderBy(GetDistanceToPlayer).FirstOrDefault(o => GetDistanceToPlayer(o) <= radius);
 
@@ -54,8 +55,9 @@ namespace AutoDuty.Helpers
         internal static IGameObject? GetObjectByNameAndRadius(string objectName) => 
             Svc.Objects.OrderBy(GetDistanceToPlayer).FirstOrDefault(g => g.Name.TextValue.Equals(objectName, StringComparison.CurrentCultureIgnoreCase) && Vector3.Distance(Player.Position, g.Position) <= 10);
 
-        internal static IBattleChara? GetBossObject(int radius = 100) => GetObjectsByRadius(radius)?.OfType<IBattleChara>().FirstOrDefault(IsBoss);
+        internal static IBattleChara? GetBossObject(int radius = 100, Vector3? position = null) => (position.HasValue ? GetObjectsByRadius(position.Value, radius) : GetObjectsByRadius(radius))?.OfType<IBattleChara>().FirstOrDefault(IsBoss);
 
+        internal static unsafe float GetDistanceToPosSquared(Vector3 pos, Vector3 target) => Vector3.DistanceSquared(pos, target);
         internal static unsafe float GetDistanceToPlayer(IGameObject gameObject) => GetDistanceToPlayer(gameObject.Position);
 
         internal static unsafe float GetDistanceToPlayer(Vector3 v3) => Vector3.Distance(v3, Player.GameObject->Position);

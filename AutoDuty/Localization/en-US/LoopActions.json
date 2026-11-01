@@ -43,10 +43,14 @@
       "UseGCAetheryteTicket": "Use GC Aetheryte Ticket"
     },
     "Armoire": {
-      "Help": "Will entrust items to the armoire between loops"
+      "Help": "Will entrust items to the armoire"
     },
     "Glamour": {
-      "Help": "Will entrust items to the glamour chest between loops"
+      "Help": "Will entrust items to the glamour chest"
+    },
+    "Shop": {
+      "Help": "Will buy items from various shops as configured in Knightshopper",
+      "CurrencySelection": "Currency"
     },
     "Desynth": {
       "OnlySkillUps": "Only Skill Ups",
@@ -59,7 +63,7 @@
       "Categories": "Desynth Categories"
     },
     "Coffers": {
-      "Help": "AutoDuty will open gear coffers (like paladin arms) between each loop",
+      "Help": "AutoDuty will open gear coffers (like paladin arms)",
       "OpenCoffersWithGearset": "Open Coffers with Gearset: ",
       "CurrentGearset": "Current Gearset",
       "UseBlacklist": "Use Blacklist",
@@ -70,12 +74,14 @@
       "AddCoffer": "Add Coffer"
     },
     "Retire": {
-      "LifestreamNotRegistered": ""
+      "LifestreamNotRegistered": "not registered in Lifestream",
+      "AdjustForDutyModes": "Adjust for active Duty Mode",
+      "AdjustForDutyModesHelp": "Squadron will retire to barracks.\nCrucible will do absolutely nothing"
     },
     "ConsumeItems": {
-      "AutoConsumeHelp": "AutoDuty will consume these items on run and between each loop (if status does not exist)",
+      "AutoConsumeHelp": "AutoDuty will consume these items on run (if status does not exist)",
       "IgnoreStatus": "Ignore Status",
-      "IgnoreStatusHelp": "AutoDuty will consume these items on run and between each loop every time (even if status does exists)",
+      "IgnoreStatusHelp": "AutoDuty will consume these items on run (even if status does exists)",
       "MinTimeRemaining": "Min time remaining",
       "MinTimeRemainingHelp": "If the status has less than this amount of time remaining (in minutes), it will consume these items",
       "ItemName": "Item Name",

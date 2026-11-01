@@ -2,7 +2,6 @@
 using ECommons.ExcelServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using ECommons.Throttlers;
 
 namespace AutoDuty.Helpers

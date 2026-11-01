@@ -20,7 +20,7 @@ namespace AutoDuty.Multibox
         private          bool                        isRunning = false;
         private          int                         maxInstances;
 
-        public void StartServer(int backlog = 3)
+        public void StartServer(int backlog = MultiboxUtility.Server.MAX_SERVERS)
         {
             if (this.isRunning)
                 return;

@@ -22,7 +22,8 @@ using Formatting = Newtonsoft.Json.Formatting;
 [JsonObject(MemberSerialization.OptIn)]
 public class ConfigurationMain
 {
-    public const string CONFIGNAME_BARE = "Bare";
+    public const           string CONFIGNAME_BARE = "Bare";
+    public static readonly Guid   CONFIGGUID_BARE = Guid.AllBitsSet;
 
     public static ConfigurationMain Instance { get; set; } = null!;
 
@@ -32,9 +33,11 @@ public class ConfigurationMain
     [JsonProperty]
     internal string Language { get; set; } = "zh-CN";
 
-    private string activeProfileName = CONFIGNAME_BARE;
-    
-    public  string ActiveProfileName => this.activeProfileName;
+    private Guid activeProfileGuid = Guid.AllBitsSet;
+
+    public Guid        ActiveProfileGuid => this.activeProfileGuid;
+    public ProfileData ActiveProfile     => this.profileByGuid[this.activeProfileGuid];
+    public string      ActiveProfileName => this.ActiveProfile.Name;
 
     public bool Initialized { get; private set; } = false;
 
@@ -42,7 +45,8 @@ public class ConfigurationMain
     private readonly HashSet<ProfileData> profileData = [];
 
     private readonly Dictionary<string, ProfileData> profileByName = [];
-    private readonly Dictionary<ulong, string>       profileByCID  = [];
+    private readonly Dictionary<ulong, ProfileData>  profileByCID  = [];
+    private readonly Dictionary<Guid, ProfileData>   profileByGuid = [];
 
     [JsonProperty]
     public readonly Dictionary<ulong, CharData> charByCID = [];
@@ -62,7 +66,45 @@ public class ConfigurationMain
     }
 
     [JsonProperty]
-    public Dictionary<ulong, CrucibleCharacterData> crucibleByCID = [];
+    public readonly Dictionary<string, Guid> profileByPluginName = [];
+
+    public ProfileData? GetProfileByGuid(Guid guid) => this.profileByGuid.GetValueOrDefault(guid);
+
+    public void ActivatePluginProfile(string name, bool on)
+    {
+        if(!on)
+        {
+            if (this.profileByPluginName.TryGetValue(name, out Guid guid) && this.ActiveProfileGuid == guid)
+                this.SetProfileToDefault();
+        }
+        else
+        {
+            if (!this.profileByPluginName.TryGetValue(name, out Guid _))
+            {
+                ConfigurationProfileV2? configClone = this.profileByName.TryGetValue(this.DefaultConfigName, out ProfileData? defaultProfile) ?
+                                                          defaultProfile.Config.JSONClone(JsonSerializerSettings) :
+                                                          this.profileByGuid[CONFIGGUID_BARE].Config.JSONClone(JsonSerializerSettings);
+
+                int    count = -1;
+                string profileName;
+                do
+                {
+                    count++;
+                    profileName = name + (count > 0 ? $" ({count})" : string.Empty);
+                } while (this.ConfigNames.Contains(profileName));
+
+                ProfileData profile = configClone == null ? this.CreateProfile(profileName) : this.CreateProfile(profileName, configClone);
+                this.profileByPluginName[name] = profile.guid;
+            }
+
+            if (this.profileByPluginName.TryGetValue(name, out Guid pluginProfileGuid))
+                this.SetProfile(pluginProfileGuid);
+        }
+    }
+
+
+    [JsonProperty]
+    public Dictionary<ulong, CrucibleCharacterData> crucibleConfigByCID = [];
 
     public const string PLAYLISTNAME_EPHEMERAL = "Ephemeral";
     [JsonProperty]
@@ -113,12 +155,13 @@ public class ConfigurationMain
     public MultiboxUtility.MultiboxConfiguration multibox = new();
 
     public IEnumerable<string> ConfigNames => this.profileByName.Keys;
+    public IEnumerable<Guid> ConfigGuids => this.profileByGuid.Keys;
      
     public ProfileData GetCurrentProfile
     {
         get
         {
-            if (!this.profileByName.TryGetValue(this.ActiveProfileName, out ProfileData? profiles))
+            if (!this.profileByGuid.TryGetValue(this.ActiveProfileGuid, out ProfileData? profiles))
             {
                 this.SetProfileToDefault();
                 return this.GetCurrentProfile;
@@ -158,7 +201,7 @@ public class ConfigurationMain
         
         if (this.profileData.Count == 0)
         {
-            this.profileData.Add(new ProfileData { Name = "Default", Config = new ConfigurationProfileV2() });
+            this.profileData.Add(new ProfileData { Name = "Default", guid = Guid.NewGuid(), Config = new ConfigurationProfileV2() });
             this.DefaultConfigName = "Default";
         }
 
@@ -166,17 +209,24 @@ public class ConfigurationMain
         {
             if (profile.CIDs.Count != 0)
                 foreach (ulong cid in profile.CIDs)
-                    this.profileByCID[cid] = profile.Name;
+                    this.profileByCID[cid] = profile;
+
             this.profileByName[profile.Name] = profile;
+
+            if(profile.guid == Guid.Empty)
+                profile.guid = Guid.NewGuid();
+
+            this.profileByGuid[profile.guid] = profile;
         }
 
         foreach (ProfileData profile in this.profileData)
-            if(profile.Name != CONFIGNAME_BARE)
+            if(profile.Name != CONFIGNAME_BARE && profile.guid != Guid.AllBitsSet)
                 RegisterProfileData(profile);
 
         ProfileData profileBare = new()
                                   {
                                       Name   = CONFIGNAME_BARE,
+                                      guid   = Guid.AllBitsSet,
                                       Config = new ConfigurationProfileV2()
                                   };
         profileBare.Config.Loop.Pre.Enabled     = false;
@@ -228,7 +278,7 @@ public class ConfigurationMain
                     foreach (JToken profileData in profileList)
                     {
                         string?        profileName = (string?) profileData["Name"];
-                        Configuration? oldConfig   = EzConfig.DefaultSerializationFactory.Deserialize<Configuration>(profileData["Config"].ToString());
+                        Obsolete.Configuration? oldConfig   = EzConfig.DefaultSerializationFactory.Deserialize<Obsolete.Configuration>(profileData["Config"].ToString());
                         DebugLog($"Found profile: {profileName}");
                         if (oldConfig != null)
                         {
@@ -254,7 +304,7 @@ public class ConfigurationMain
         {
             try
             {
-                Configuration? configuration = EzConfig.DefaultSerializationFactory.Deserialize<Configuration>(File.ReadAllText(Svc.PluginInterface.ConfigFile.FullName, Encoding.UTF8));
+                Obsolete.Configuration? configuration = EzConfig.DefaultSerializationFactory.Deserialize<Obsolete.Configuration>(File.ReadAllText(Svc.PluginInterface.ConfigFile.FullName, Encoding.UTF8));
                 if (configuration != null)
                 {
                     ConfigurationProfileV2 migratedConfig = this.MigrateConfigurationV1ToV2(configuration);
@@ -274,9 +324,15 @@ public class ConfigurationMain
     public bool SetProfile(string name)
     {
         DebugLog("Changing profile to: " + name);
-        if (this.profileByName.ContainsKey(name))
+        return this.profileByName.TryGetValue(name, out ProfileData? profile) && this.SetProfile(profile.guid);
+    }
+
+    public bool SetProfile(Guid guid)
+    {
+        DebugLog("Changing profile to: " + guid);
+        if (this.profileByGuid.ContainsKey(guid))
         {
-            this.activeProfileName = name;
+            this.activeProfileGuid = guid;
             return true;
         }
         return false;
@@ -284,7 +340,7 @@ public class ConfigurationMain
 
     public void SetProfileAsDefault()
     {
-        if (this.profileByName.ContainsKey(this.ActiveProfileName))
+        if (this.profileByGuid.ContainsKey(this.ActiveProfileGuid))
         {
             this.DefaultConfigName = this.ActiveProfileName;
             Save();
@@ -293,13 +349,13 @@ public class ConfigurationMain
 
     public void SetProfileToDefault()
     {
-        this.SetProfile(CONFIGNAME_BARE);
+        this.SetProfile(CONFIGGUID_BARE);
         Svc.Framework.RunOnTick(() =>
                                 {
                                     DebugLog($"Setting to default profile for {(Player.Available ? Player.Name : "Unknown")} ({Player.CID}) {PlayerHelper.IsValid}");
 
-                                    if (Player.Available && this.profileByCID.TryGetValue(Player.CID, out string? charProfile))
-                                        if (this.SetProfile(charProfile))
+                                    if (Player.Available && this.profileByCID.TryGetValue(Player.CID, out ProfileData? charProfile))
+                                        if (this.SetProfile(charProfile.guid))
                                             return;
 
                                     DebugLog("No char default found. Using general default");
@@ -314,25 +370,31 @@ public class ConfigurationMain
                                 });
     }
 
-    public void CreateNewProfile() =>
+    public ProfileData CreateNewProfile() =>
         this.CreateProfile("Profile" + (this.profileByName.Count - 1).ToString(CultureInfo.InvariantCulture));
 
-    public void CreateProfile(string name) =>
+    public ProfileData CreateProfile(string name) =>
         this.CreateProfile(name, new ConfigurationProfileV2());
 
-    public void CreateProfile(string name, ConfigurationProfileV2 config)
+    public ProfileData CreateProfile(string name, ConfigurationProfileV2 config, bool setActive = true)
     {
         DebugLog($"Creating new Profile: {name}");
 
         ProfileData profile = new()
                               {
                                   Name   = name,
+                                  guid   = Guid.NewGuid(),
                                   Config = config
                               };
 
         this.profileData.Add(profile);
         this.profileByName.Add(name, profile);
-        this.SetProfile(name);
+        this.profileByGuid.Add(profile.guid, profile);
+
+        if(setActive)
+            this.SetProfile(name);
+
+        return profile;
     }
 
     public void DuplicateCurrentProfile()
@@ -347,7 +409,6 @@ public class ConfigurationMain
         while (this.profileByName.ContainsKey(name));
 
         ConfigurationProfileV2 newConfig = this.GetCurrentConfig.JSONClone(JsonSerializerSettings);
-
         if (newConfig != null)
             this.CreateProfile(name, newConfig);
     }
@@ -357,6 +418,7 @@ public class ConfigurationMain
         DebugLog("Removing " + this.ActiveProfileName);
         this.profileData.Remove(this.GetCurrentProfile);
         this.profileByName.Remove(this.ActiveProfileName);
+        this.profileByGuid.Remove(this.ActiveProfileGuid);
         this.SetProfileToDefault();
     }
 
@@ -369,7 +431,6 @@ public class ConfigurationMain
         this.profileByName.Remove(this.ActiveProfileName);
         this.profileByName[newName] = config;
         config.Name                 = newName;
-        this.activeProfileName      = newName;
 
         Save();
 
@@ -388,11 +449,11 @@ public class ConfigurationMain
 
                                     ulong cid = Player.CID;
 
-                                    if (this.profileByCID.TryGetValue(cid, out string? oldProfile))
-                                        this.profileByName[oldProfile].CIDs.Remove(cid);
+                                    if (this.profileByCID.TryGetValue(cid, out ProfileData? oldProfile))
+                                        oldProfile.CIDs.Remove(cid);
 
                                     this.GetCurrentProfile.CIDs.Add(cid);
-                                    this.profileByCID.Add(cid, this.ActiveProfileName);
+                                    this.profileByCID.Add(cid, this.GetCurrentProfile);
                                     this.charByCID[cid] = new CharData
                                                           {
                                                               CID   = cid,
@@ -412,7 +473,7 @@ public class ConfigurationMain
 
                                     ulong cid = Player.CID;
 
-                                    this.profileByName[this.ActiveProfileName].CIDs.Remove(cid);
+                                    this.profileByGuid[this.ActiveProfileGuid].CIDs.Remove(cid);
                                     this.profileByCID.Remove(cid);
 
                                     Save();
@@ -428,7 +489,7 @@ public class ConfigurationMain
     }
 
 #pragma warning disable CS0618 // Type or member is obsolete
-    private ConfigurationProfileV2 MigrateConfigurationV1ToV2(Configuration oldConfig)
+    private ConfigurationProfileV2 MigrateConfigurationV1ToV2(Obsolete.Configuration oldConfig)
 #pragma warning restore CS0618 // Type or member is obsolete
     {
         ConfigurationProfileV2 newConfig = new();
@@ -787,7 +848,7 @@ public class ConfigurationMain
                     typeName = typeName.Replace("AutoDuty.Data.Classes+PathActionCondition", "AutoDuty.Data.PathActionCondition");
 
             #pragma warning disable CS0618 // Type or member is obsolete
-                Type? type = typeof(Configuration).Assembly.GetType(typeName);
+                Type? type = typeof(Obsolete.Configuration).Assembly.GetType(typeName);
             #pragma warning restore CS0618 // Type or member is obsolete
                 if (type != null)
                     return type;
@@ -805,6 +866,7 @@ public class ConfigurationMain
     public class ProfileData
     {
         public required string                 Name;
+        public required Guid                   guid;
         public          HashSet<ulong>         CIDs = [];
         public required ConfigurationProfileV2 Config;
     }

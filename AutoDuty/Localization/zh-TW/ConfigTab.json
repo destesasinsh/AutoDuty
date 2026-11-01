@@ -11,6 +11,7 @@
       "Delete": "刪除設定",
       "DeleteHelp": "刪除設定\n按住 Ctrl 以啟用",
       "BareProfileNote": "空白設定檔(Bare Profile)僅用於單純執行副本，不包含其他功能。您可以複製它來進行編輯",
+      "ConfigOverridesActiveNote": "IPC 設定覆寫生效期間將鎖定設定。請停止 AutoDuty 後再編輯。",
       "NewProfileName": "新設定檔名稱",
       "ChangeProfileName": "變更設定檔名稱"
     },
@@ -26,10 +27,12 @@
       "TransparentBG": "懸浮窗使用透明背景",
       "ShowActionText": "顯示 AutoDuty 動作狀態文字",
       "AnchorBottom": "底部對齊",
+      "ButtonsHeader": "以下按鈕可顯示於懸浮視窗／主頁面",
       "OverrideButtons": "自定義懸浮按鈕",
       "OverrideButtonsHelp": "懸浮按鈕預設只有當功能啟用時，按鈕才會啟用\n此選項允許您手動選擇要啟用的按鈕",
       "ShowMainWindowOnStartup": "啟動時顯示主視窗",
-      "SliderInputs": "滑桿輸入模式"
+      "SliderInputs": "滑桿輸入模式",
+      "LoopActionsOpenByDefault": "預設展開已啟用的循環動作"
     },
     "Duty": {
       "Header": "副本設定",
@@ -80,6 +83,8 @@
       "ReturnTimes": "次",
       "DrawPath": "繪製路徑的下一步",
       "DrawPathSteps": "繪製 X 步",
+      "DisableRenderWhileActive": "停用畫面渲染",
+      "DisableRenderWhileActiveHelp": "AutoDuty 執行期間停止渲染 3D 遊戲畫面",
       "W2W": {
         "Header": "> 一波拉 (W2W) 設定 <",
         "TreatUnsyncAsW2W": "將解除限制 (Unsync) 視為一波拉",
@@ -97,14 +102,35 @@
         "UsingAltBossHelp": "您決定使用除 BossMod 以外的插件。"
       }
     },
+    "PreLoop": {
+      "Header": "循環開始前的初始化設定",
+      "Enable": "啟用",
+      "ExecuteCommands": "所有循環開始前執行指令",
+      "ExecuteCommandsHelp": "所有循環開始前執行指令\n例如 {0}",
+      "BetweenLoopNote": "若已啟用循環間動作（目前為 {0}），循環之間也會執行下列動作",
+      "RetireTo": "結束後前往 ",
+      "ActionsCopyFromBetweenLoop": "從循環間動作複製"
+    },
+    "BetweenLoop": {
+      "Header": "循環間設定",
+      "Enable": "啟用",
+      "RunOnLastLoop": "最後一次循環也執行",
+      "ArmoireEntrustHelp": "在循環之間將物品放入愛藏品櫃。",
+      "GlamourEntrust": "放入投影台",
+      "GlamourEntrustHelp": "在循環之間將物品放入投影台。",
+      "RegisterTripleTriadCards": "登錄九宮幻卡",
+      "SellTripleTriadCards": "出售九宮幻卡",
+      "EnableAutoRetainerMultiMode": "啟用 AutoRetainer 多角色模式",
+      "EnableAutoRetainerMultiModeHelp": "讓 AutoRetainer 的多角色模式依序處理所有角色一次，之後返回繼續執行副本",
+      "EnableAutoRetainer": "啟用 AutoRetainer 整合"
+    },
     "Termination": {
       "Header": "循環終止設定",
       "Enable": "啟用",
-      "Disable": "停用",
+      "Help": "只要分配了足夠的循環次數，達成下列條件時便會停止循環。",
       "StopAtLevel": "達到指定等級時停止循環",
-      "StopAtLevelHelp": "當達到這些條件時，循環就會停止，前提是分配了足夠的循環次數",
+      "StopAtILevel": "達到指定平均品級時停止循環",
       "StopNoRestedXP": "無休息經驗值時停止",
-      "StopNoRestedXPHelp": "當達到這些條件時，循環就會停止，前提是分配了足夠的循環次數",
       "StopAtItemQty": "達到指定物品數量時停止迴圈",
       "StopAtItemQtyHelp": "當達到這些條件時，循環就會停止，前提是分配了足夠的循環次數",
       "SelectItem": "選擇物品",
@@ -113,13 +139,22 @@
       "Quantity": "數量",
       "AddItem": "新增物品",
       "StopOnlyWhenAllItems": "僅在獲得所有物品後停止循環",
+      "StopWhenDutyGathered": "收集完本副本的所有投影裝備時停止循環",
+      "StopWhenDutyGatheredHelp": "收集完目前副本的投影裝備時停止循環。",
+      "StopWhenDutyGatheredSetsOnly": "僅限套裝",
       "StopBLUSpell": "解鎖青魔技能時停止循環",
       "SelectBLUSpell": "選擇青魔技能",
       "StopOnlyWhenAllSpells": "僅在解鎖所有青魔技能後停止循環",
+      "StopWhenInventoryFull": "背包已滿時停止循環",
+      "StopWhenInventoryFullSlots": "剩餘空位: ",
       "ExecuteCommandsOnTermination": "在所有循環終止時執行指令",
+      "ExecuteCommandsOnTerminationHelp": "所有循環終止時執行指令\n例如 {0}",
       "PlaySoundOnCompletion": "所有循環完成時播放音效: ",
       "OnCompletionOfAllLoops": "當所有循環完成時: ",
-      "KeepTerminationActive": "執行後保持終止選項為啟用狀態"
+      "KeepTerminationActive": "執行後保持終止選項為啟用狀態",
+      "Disable": "停用",
+      "StopAtLevelHelp": "當達到這些條件時，循環就會停止，前提是分配了足夠的循環次數",
+      "StopNoRestedXPHelp": "當達到這些條件時，循環就會停止，前提是分配了足夠的循環次數"
     },
     "Multiboxing": {
       "Header": "多開同步 (Multiboxing)",
@@ -160,6 +195,12 @@
       "ResynchronizeStep": "重新同步步驟"
     },
     "Enums": {
+      "Positional": {
+        "Any": "任意",
+        "Flank": "側面",
+        "Rear": "背面",
+        "Front": "正面"
+      },
       "RetireLocation": {
         "Inn": "旅館",
         "Apartment": "公寓",
@@ -203,6 +244,69 @@
         "Kill_Client": "關閉遊戲",
         "Kill_PC": "關機",
         "Start_AR_Night_Mode": "啟動 AutoRetainer 夜間模式"
+      },
+      "JobWithRole": {
+        "None": "無",
+        "All": "所有職業",
+        "Tanks": "防護職業",
+        "Healers": "治療職業",
+        "DPS": "輸出職業",
+        "Melee": "近戰職業",
+        "Striking": "強襲職業",
+        "Maiming": "制敵職業",
+        "Scouting": "游擊職業",
+        "Aiming": "精準職業",
+        "Casters": "詠咒職業",
+        "Paladin": "騎士",
+        "Warrior": "戰士",
+        "Dark_Knight": "暗黑騎士",
+        "Gunbreaker": "絕槍戰士",
+        "White_Mage": "白魔道士",
+        "Scholar": "學者",
+        "Astrologian": "占星術師",
+        "Sage": "賢者",
+        "Monk": "武僧",
+        "Samurai": "武士",
+        "Dragoon": "龍騎士",
+        "Reaper": "奪魂者",
+        "Ninja": "忍者",
+        "Viper": "毒蛇劍士",
+        "Bard": "吟遊詩人",
+        "Machinist": "機工士",
+        "Dancer": "舞者",
+        "Black_Mage": "黑魔道士",
+        "Summoner": "召喚師",
+        "Red_Mage": "赤魔道士",
+        "Pictomancer": "繪靈法師",
+        "Blue_Mage": "青魔道士"
+      },
+      "MultiModeType": {
+        "Retainers": "雇員",
+        "Submersibles": "潛水艇",
+        "Everything": "全部"
+      },
+      "ConditionType": {
+        "VariantPath": "路線",
+        "Distance": "距離",
+        "ObjectData": "物件",
+        "ItemCount": "物品",
+        "Job": "職業",
+        "ActionStatus": "技能狀態",
+        "ConditionFlag": "條件旗標",
+        "Collision": "碰撞",
+        "ToDo": "待辦事項",
+        "Not": "非",
+        "Or": "或",
+        "And": "且"
+      },
+      "ObjectDataProperty": {
+        "EventState": "事件狀態",
+        "IsTargetable": "可選為目標"
+      },
+      "DistanceLocationTypes": {
+        "Player": "玩家",
+        "Object": "物件",
+        "Location": "位置"
       },
       "Jobs": {
         "All": "所有職業",

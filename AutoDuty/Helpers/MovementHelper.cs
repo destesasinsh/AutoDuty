@@ -7,6 +7,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 namespace AutoDuty.Helpers
 {
+    using System;
     using System.Linq;
     using ECommons.Automation;
     using Lumina.Excel.Sheets;
@@ -76,6 +77,7 @@ namespace AutoDuty.Helpers
             {
                 if (!VNavmesh_IPCSubscriber.Path_IsRunning)
                 {
+                    Svc.Log.Debug("MovementHelper: Queued Move to " + position + "\n" + Environment.StackTrace);
                     Chat.ExecuteCommand("/automove off");
                     VNavmesh_IPCSubscriber.Path_MoveTo([position], fly);
                 }
@@ -88,6 +90,7 @@ namespace AutoDuty.Helpers
 
             if (!VNavmesh_IPCSubscriber.SimpleMove_PathfindInProgress || VNavmesh_IPCSubscriber.Path_NumWaypoints == 0)
             {
+                Svc.Log.Debug("MovementHelper: Queued Move to " + position + "\n" + Environment.StackTrace);
                 Chat.ExecuteCommand("/automove off");
                 VNavmesh_IPCSubscriber.Path_SetTolerance(tollerance);
                 VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(position, fly);

@@ -3,6 +3,7 @@ namespace AutoDuty.Configurations;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
+using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Data;
 using ECommons;
@@ -19,6 +20,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Windows;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using IPC;
+using Lumina.Excel.Sheets;
 
 [JsonObject(MemberSerialization.OptOut)]
 public class ConfigurationProfileV2
@@ -84,15 +89,72 @@ public class ConfigurationProfileV2
         [JsonObject(MemberSerialization.OptOut)]
         public class CrucibleConfig
         {
-            public CrucibleTeamMode TeamMode   { get; set; } = CrucibleTeamMode.Recommended;
-            public List<uint>       CustomTeam { get; set; } = [];
+            public CrucibleDegree         Degree         { get; set; } = CrucibleDegree.Standard;
+            public CrucibleTeamMode       TeamMode       { get; set; } = CrucibleTeamMode.Recommended;
+            public CrucibleLevelingMode   LevelingMode   { get; set; } = CrucibleLevelingMode.Minus_3;
+            public List<uint>             CustomTeam     { get; set; } = [];
+            public List<CrucibleShopList> ShopLists      { get; set; } = [];
+            public int                    ShopListIndex  { get; set; } = 0;
+            public List<uint>             ShopGearOrder  { get; set; } = []; // legacy, only seeds ShopLists
+            public List<BeastTierList>    BeastTierLists { get; set; } = [];
+            public int                    BeastTierListIndex { get; set; } = 0;
 
-            public bool FightPicks { get; set; } = true;
-            public bool Loot       { get; set; } = true;
-            public bool Treasure   { get; set; } = true;
-            public bool Shop       { get; set; } = true;
-            public bool Rest       { get; set; } = true;
-            public bool Items      { get; set; } = true;
+            public bool FightPicks              { get; set; }                  = true;
+            public bool Loot                    { get; set; }                  = true;
+            public bool Treasure                { get; set; }                  = true;
+            public bool Shop                    { get; set; }                  = true;
+            public bool Rest                    { get; set; }                  = true;
+            public bool Items                   { get; set; }                  = true;
+            public bool RespectGearRequirements { get; set; }                  = true;
+
+            public int RecommendedTeamCap
+            {
+                get;
+                set => field = Math.Clamp(value, 3, 15);
+            } = 15;
+
+            public int ClassificationLock { get; set; } = 0;
+        }
+
+        public interface ICrucibleList
+        {
+            public string Name { get; set; }
+        }
+
+        [JsonObject(MemberSerialization.OptOut)]
+        public class CrucibleShopList : ICrucibleList
+        {
+            public string     Name      { get; set; } = "Default";
+            public List<Entry> Order     { get; set; } = [];
+
+            public CrucibleShopList CompleteList()
+            {
+                IEnumerable<uint> uints = this.Order.Select(e => e.ID);
+                foreach (uint id in CrucibleItemData.ShopItems.Where(id => !uints.Contains(id)).ToList())
+                    this.Order.Add(id);
+
+                return this;
+            }
+
+            [JsonIgnore]
+            public bool IsCompleted => CrucibleItemData.ShopItems.All(id => this.Order.Any(e => e.ID == id));
+
+            [JsonIgnore]
+            public bool OrderChanged => CrucibleItemData.ShopItems.Length != this.Order.Count || CrucibleItemData.ShopItems.Where((id, index) => id != this.Order[index].ID).Any();
+
+            [JsonObject(MemberSerialization.OptOut)]
+            public class Entry
+            {
+                public required uint ID      { get; set; }
+                public          bool Blocked { get; set; }
+
+                [JsonIgnore]
+                public CrucibleItemData.CrucibleItemCategory GetCategory =>
+                    CrucibleItemData.GetCategoryOf(this.ID);
+
+                public static implicit operator Entry(long id) => (uint)id;
+                public static implicit operator Entry(uint id) => new() { ID = id };
+            }
         }
 
         public bool ShowMainWindowOnStartup { get; set; } = false;
@@ -308,6 +370,7 @@ public class ConfigurationProfileV2
                 set;
             } = true;
         }
+        public uint WaitBeforeLeaving { get; set; }
 
         public bool PathDrawEnabled   { get; set; } = false;
         public int  PathDrawStepCount { get; set; } = 5;
@@ -426,9 +489,9 @@ public class ConfigurationProfileV2
         public TerminationConfig Termination { get; set; }
 
         [JsonObject(MemberSerialization.OptOut)]
-        public class TerminationConfig(LoopConfig config)
+        public class TerminationConfig(LoopConfig? config)
         {
-            private readonly LoopConfig config = config;
+            private readonly LoopConfig? config = config;
 
             public bool                                        Enabled      { get; set; } = true;
 
@@ -448,6 +511,21 @@ public class ConfigurationProfileV2
             public bool                                        TerminationiLvl               { get; set; }
             public int                                         TerminationiLvlInt            { get; set; }
 
+            public unsafe bool ShouldStop =>
+                this.Enabled &&
+                (Plugin.CurrentTerritoryContent == null                                                 ||
+                 (this.StopLevel      && Player.Level                             >= this.StopLevelInt) ||
+                 (this.StopNoRestedXP && AgentHUD.Instance()->ExpRestedExperience == 0)                 ||
+                 (this.TerminationBLUSpellsEnabled && (this.TerminationBLUSpellsAll ?
+                                                           this.TerminationBLUSpells.All(BLUHelper.SpellUnlocked) :
+                                                           this.TerminationBLUSpells.Any(BLUHelper.SpellUnlocked))) ||
+                 (this.StopItemQty && (this.StopItemAll ?
+                                           this.StopItemQtyItemDictionary.All(x => InventoryManager.Instance()->GetInventoryItemCount(x.Key) >= x.Value.Value) :
+                                           this.StopItemQtyItemDictionary.Any(x => InventoryManager.Instance()->GetInventoryItemCount(x.Key) >= x.Value.Value))) ||
+                 (this.StopWhenDutyGathered     && GlamourLog_IPCSubscriber.AllStoredFromDungeon(Plugin.CurrentTerritoryContent.TerritoryType))                  ||
+                 (this.TerminationInventoryFree && this.TerminationInventoryFreeSlots >= InventoryHelper.SlotsFree)                                              ||
+                 (this.TerminationiLvl          && InventoryHelper.CurrentItemLevel   >= this.TerminationiLvlInt));
+
             public LoopActions Actions { get; set; } =
             [
                 new ExecuteCommandsLoopActionConfig { Enabled = false },
@@ -456,6 +534,264 @@ public class ConfigurationProfileV2
 
             public TerminationMode                 TerminationMethodEnum     { get; set; } = TerminationMode.Do_Nothing;
             public bool                            TerminationKeepActive     { get; set; } = true;
+
+            [JsonIgnore] private static string                     stopItemQtyItemNameInput = "";
+            [JsonIgnore] private static KeyValuePair<uint, string> stopItemQtySelectedItem  = new(0, "");
+
+
+            internal void Draw()
+            {
+                bool terminationEnabled = this.Enabled;
+                if (ImGui.Checkbox($"{Loc.Get("ConfigTab.Termination.Enable")}###TerminationEnable", ref terminationEnabled))
+                {
+                    this.Enabled = terminationEnabled;
+                    ConfigurationProfileV2.Save();
+                }
+
+                ImGuiComponents.HelpMarker(Loc.Get("ConfigTab.Termination.Help"));
+                using (ImRaii.Disabled(!this.Enabled))
+                {
+                    ImGui.Separator();
+
+                    bool terminationStopLevel = this.StopLevel;
+                    if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopAtLevel"), ref terminationStopLevel))
+                    {
+                        this.StopLevel = terminationStopLevel;
+                        ConfigurationProfileV2.Save();
+                    }
+
+                    if (this.StopLevel)
+                    {
+                        ImGui.SameLine(0, 10);
+                        ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X);
+
+                        int stopLevelInt = this.StopLevelInt;
+                        if (ConfigTab.MakeSliderOrInput(ref stopLevelInt, "##Level", 1, 100))
+                        {
+                            this.StopLevelInt = Math.Clamp(stopLevelInt, 1, 100);
+                            ConfigurationProfileV2.Save();
+                        }
+
+                        ImGui.PopItemWidth();
+                    }
+
+                    bool restedXP = this.StopNoRestedXP;
+                    if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopNoRestedXP"), ref restedXP))
+                    {
+                        this.StopNoRestedXP = restedXP;
+                        ConfigurationProfileV2.Save();
+                    }
+
+                    bool terminationiLvl = this.TerminationiLvl;
+                    if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopAtILevel"), ref terminationiLvl))
+                    {
+                        this.TerminationiLvl = terminationiLvl;
+                        ConfigurationProfileV2.Save();
+                    }
+
+                    if (this.TerminationiLvl)
+                    {
+                        ImGui.SameLine(0, 10);
+                        ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X);
+                        int terminationiLvlInt = this.TerminationiLvlInt;
+
+                        if (ConfigTab.MakeSliderOrInput(ref terminationiLvlInt, "##ItemLevel", 1, 999))
+                        {
+                            this.TerminationiLvlInt = Math.Clamp(terminationiLvlInt, 1, 999);
+                            ConfigurationProfileV2.Save();
+                        }
+                        ImGui.PopItemWidth();
+                    }
+
+
+                    bool stopItemQty = this.StopItemQty;
+                    if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopAtItemQty"), ref stopItemQty))
+                    {
+                        this.StopItemQty = stopItemQty;
+                        ConfigurationProfileV2.Save();
+                    }
+
+                    if (this.StopItemQty)
+                    {
+                        ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X - 125 * ImGuiHelpers.GlobalScale);
+                        if (ImGui.BeginCombo(Loc.Get("ConfigTab.Termination.SelectItem"), stopItemQtySelectedItem.Value))
+                        {
+                            ImGui.InputTextWithHint(Loc.Get("ConfigTab.Termination.ItemName"), Loc.Get("ConfigTab.Termination.ItemNameHint"), ref stopItemQtyItemNameInput, 1000);
+                            foreach (KeyValuePair<uint, Item> item in ConfigTab.Items.Where(x => x.Value.Name.ToString().Contains(stopItemQtyItemNameInput, StringComparison.InvariantCultureIgnoreCase))!)
+                                if (ImGui.Selectable($"{item.Value.Name.ToString()}"))
+                                    stopItemQtySelectedItem = new KeyValuePair<uint, string>(item.Key, item.Value.Name.ToString());
+                            ImGui.EndCombo();
+                        }
+                        ImGui.PopItemWidth();
+                        ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X - 220 * ImGuiHelpers.GlobalScale);
+                        int stopItemQtyInt = this.StopItemQtyInt;
+                        if (ImGui.InputInt(Loc.Get("ConfigTab.Termination.Quantity"), ref stopItemQtyInt, 1, 10))
+                        {
+                            this.StopItemQtyInt = stopItemQtyInt;
+                            ConfigurationProfileV2.Save();
+                        }
+
+                        ImGui.SameLine(0, 5);
+                        using (ImRaii.Disabled(stopItemQtySelectedItem.Value.IsNullOrEmpty()))
+                        {
+                            if (ImGui.Button(Loc.Get("ConfigTab.Termination.AddItem")))
+                            {
+                                if (!this.StopItemQtyItemDictionary.TryAdd(stopItemQtySelectedItem.Key, new KeyValuePair<string, int>(stopItemQtySelectedItem.Value, this.StopItemQtyInt)))
+                                {
+                                    this.StopItemQtyItemDictionary.Remove(stopItemQtySelectedItem.Key);
+                                    this.StopItemQtyItemDictionary.Add(stopItemQtySelectedItem.Key, new KeyValuePair<string, int>(stopItemQtySelectedItem.Value, this.StopItemQtyInt));
+                                }
+                                ConfigurationProfileV2.Save();
+                            }
+                        }
+                        ImGui.PopItemWidth();
+                        if (!ImGui.BeginListBox("##ItemList", new System.Numerics.Vector2(ImGui.GetContentRegionAvail().X, (ImGui.GetTextLineHeightWithSpacing() * this.StopItemQtyItemDictionary.Count) + 5)))
+                            return;
+
+                        foreach (KeyValuePair<uint, KeyValuePair<string, int>> item in this.StopItemQtyItemDictionary)
+                        {
+                            ImGui.Selectable($"{item.Value.Key} (Qty: {item.Value.Value})");
+                            if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
+                            {
+                                this.StopItemQtyItemDictionary.Remove(item);
+                                ConfigurationProfileV2.Save();
+                            }
+                        }
+                        ImGui.EndListBox();
+                        bool stopItemAll = this.StopItemAll;
+                        if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopOnlyWhenAllItems"), ref stopItemAll))
+                        {
+                            this.StopItemAll = stopItemAll;
+                            ConfigurationProfileV2.Save();
+                        }
+                    }
+
+                    using (ImGuiHelper.RequiresPlugin(ExternalPlugin.GlamourLog, "StopWhenDutyGatheredGlamourLog", inline: true))
+                    {
+                        bool stopWhenDutyGathered = this.StopWhenDutyGathered;
+                        if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopWhenDutyGathered"), ref stopWhenDutyGathered))
+                        {
+                            this.StopWhenDutyGathered = stopWhenDutyGathered;
+                            ConfigurationProfileV2.Save();
+                        }
+                        ImGuiComponents.HelpMarker(Loc.Get("ConfigTab.Termination.StopWhenDutyGatheredHelp"));
+                    }
+
+                    bool bluSpellsEnabled = this.TerminationBLUSpellsEnabled;
+                    if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopBLUSpell"), ref bluSpellsEnabled))
+                    {
+                        this.TerminationBLUSpellsEnabled = bluSpellsEnabled;
+                        ConfigurationProfileV2.Save();
+                    }
+
+                    if (this.TerminationBLUSpellsEnabled)
+                    {
+                        ImGui.Indent();
+
+                        if (ImGui.BeginCombo("##TerminationBlueSpell", Loc.Get("ConfigTab.Termination.SelectBLUSpell")))
+                        {
+                            foreach (BLUHelper.BLUSpell bluSpell in BLUHelper.spells)
+                            {
+                                if (!BLUHelper.SpellUnlocked(bluSpell))
+                                    if (ImGui.Selectable($"({bluSpell.Entry}) {bluSpell.Name}"))
+                                    {
+                                        this.TerminationBLUSpells.Add(bluSpell.ID);
+                                        this.TerminationBLUSpells = [.. this.TerminationBLUSpells.OrderBy(sp => BLUHelper.spellsById[sp].Entry)];
+                                        ConfigurationProfileV2.Save();
+                                    }
+                            }
+
+                            ImGui.EndCombo();
+                        }
+
+                        if (ImGui.BeginListBox("##TerminationBluSpellList", new System.Numerics.Vector2(ImGui.GetContentRegionAvail().X, (ImGui.GetTextLineHeightWithSpacing() * this.TerminationBLUSpells.Count) + 5)))
+                        {
+                            foreach (uint bluSpell in this.TerminationBLUSpells)
+                            {
+                                BLUHelper.BLUSpell spell = BLUHelper.spellsById[bluSpell];
+                                ImGui.Selectable($"({spell.Entry}) {spell.Name}");
+                                if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
+                                {
+                                    this.TerminationBLUSpells.Remove(bluSpell);
+                                    ConfigurationProfileV2.Save();
+                                    return;
+                                }
+                            }
+                            ImGui.EndListBox();
+                        }
+
+                        bool bluSpellsAll = this.TerminationBLUSpellsAll;
+                        if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopOnlyWhenAllSpells"), ref bluSpellsAll))
+                        {
+                            this.TerminationBLUSpellsAll = bluSpellsAll;
+                            ConfigurationProfileV2.Save();
+                        }
+
+                        ImGui.Unindent();
+                    }
+
+                    bool inventoryFree = this.TerminationInventoryFree;
+                    if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.StopWhenInventoryFull") + "###StopWhenInventoryFull", ref inventoryFree))
+                    {
+                        this.TerminationInventoryFree = inventoryFree;
+                        ConfigurationProfileV2.Save();
+                    }
+
+                    if (this.TerminationInventoryFree)
+                    {
+                        ImGui.Indent();
+                        ImGui.PushItemWidth(150f.Scale());
+
+                        ImGui.AlignTextToFramePadding();
+                        ImGui.Text(Loc.Get("ConfigTab.Termination.StopWhenInventoryFullSlots"));
+                        ImGui.SameLine();
+                        int inventoryFreeSlots = this.TerminationInventoryFreeSlots;
+                        if (ImGui.InputInt("###StopWhenInventoryFullSlotsInput", ref inventoryFreeSlots, 1, 5))
+                        {
+                            this.TerminationInventoryFreeSlots = Math.Clamp(inventoryFreeSlots, 0, 139);
+                            ConfigurationProfileV2.Save();
+                        }
+
+                        ImGui.PopItemWidth();
+                        ImGui.Unindent();
+                    }
+
+                    ImGui.Separator();
+
+                    this.Actions.OnGui("TerminationActions", LoopActionCategory.Termination);
+
+                    ImGui.Separator();
+
+                    ImGui.Text(Loc.Get("ConfigTab.Termination.OnCompletionOfAllLoops"));
+                    ImGui.SameLine(0, 10);
+                    ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X);
+                    if (ImGui.BeginCombo("##ConfigTerminationMethod", this.TerminationMethodEnum.ToLocalizedString()))
+                    {
+                        foreach (TerminationMode terminationMode in Enum.GetValues(typeof(TerminationMode)))
+                            if (terminationMode != TerminationMode.Kill_PC || OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
+                                if (ImGui.Selectable(terminationMode.ToLocalizedString(), this.TerminationMethodEnum == terminationMode))
+                                {
+                                    this.TerminationMethodEnum = terminationMode;
+                                    ConfigurationProfileV2.Save();
+                                }
+
+                        ImGui.EndCombo();
+                    }
+
+                    if (this.TerminationMethodEnum is TerminationMode.Kill_Client or TerminationMode.Kill_PC or TerminationMode.Logout)
+                    {
+                        ImGui.Indent();
+                        bool keepActive = this.TerminationKeepActive;
+                        if (ImGui.Checkbox(Loc.Get("ConfigTab.Termination.KeepTerminationActive"), ref keepActive))
+                        {
+                            this.TerminationKeepActive = keepActive;
+                            ConfigurationProfileV2.Save();
+                        }
+
+                        ImGui.Unindent();
+                    }
+                }
+            }
         }
     }
 
@@ -463,10 +799,10 @@ public class ConfigurationProfileV2
     {
         private float imguiListX = 400;
 
-        public LoopActionConfig? FindConfig<T>() where T : LoopActionConfig =>  
-            this.FirstOrDefault(lac => lac is T);
+        public LoopActionConfig<T>? FindConfig<T>() where T : LoopActionConfig<T>, new() =>  
+            (LoopActionConfig<T>?) this.FirstOrDefault(lac => lac is T);
 
-        public bool RunConfig<T>(bool queue = true) where T : LoopActionConfig
+        public bool RunConfig<T>(bool queue = true) where T : LoopActionConfig<T>, new()
         {
             LoopActionConfig? config = this.FindConfig<T>();
             if (config == null)

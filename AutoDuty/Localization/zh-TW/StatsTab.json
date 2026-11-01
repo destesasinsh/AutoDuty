@@ -6,6 +6,8 @@
     "TimeSpent": "花費時間: {0}",
     "DutiesRunHeader": "副本執行紀錄",
     "ScrambleNames": "混淆名稱",
+    "SelectedMultiCount": "已選擇 {0} 項",
+    "FilterOnlySelected": "僅顯示已選擇項目",
     "Unknown": "未知 ({0})",
     "Columns": {
       "CompletedAt": "完成時間",
@@ -13,7 +15,8 @@
       "Duty": "副本",
       "Char": "角色",
       "ilvl": "裝等",
-      "Job": "職業"
+      "Job": "職業",
+      "Deaths": "死亡次數"
     }
   }
 }

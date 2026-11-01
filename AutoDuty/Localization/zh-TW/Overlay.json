@@ -8,7 +8,18 @@
       "Repair": "修理裝備",
       "Equip": "推薦裝備",
       "Coffers": "開啟裝備箱",
-      "TripleTriad": "九宮幻卡"
+      "TripleTriad": "九宮幻卡",
+      "Armoire": "愛藏品櫃",
+      "Glamour": "投影台",
+      "AutoRetainer": "雇員",
+      "AutoRetainerMulti": "AR 多角色",
+      "Discard": "丟棄",
+      "TripleTriadUse": "登錄幻卡",
+      "TripleTriadSell": "出售幻卡",
+      "ConsumeItems": "使用物品",
+      "ExecuteCommands": "執行指令",
+      "Wait": "等待(?)",
+      "PlaySound": "音效"
     },
     "Tooltip": {
       "TurnIn": "點擊前往軍隊總部，並呼叫 AutoRetainer 執行繳交",

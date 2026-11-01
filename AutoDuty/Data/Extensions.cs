@@ -3,8 +3,6 @@ using ECommons;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using System.Globalization;
 using System.Numerics;
-using System.ComponentModel;
-using System.Reflection;
 
 namespace AutoDuty.Data
 {
@@ -70,27 +68,6 @@ namespace AutoDuty.Data
         }
 
         public static string ToCustomString(this Enum T) => T.ToString().Replace("_", " ") ?? "";
-        public static string GetDescription(this Enum value)
-        {
-            Type type = value.GetType();
-            string name = Enum.GetName(type, value);
-            if (name != null)
-            {
-                FieldInfo field = type.GetField(name);
-                if (field != null)
-                {
-                    DescriptionAttribute attr = 
-                        Attribute.GetCustomAttribute(field, 
-                            typeof(DescriptionAttribute)) as DescriptionAttribute;
-                    if (attr != null)
-                    {
-                        return attr.Description;
-                    }
-                }
-            }
-            return value.ToString().Replace("_", " ");
-        }
-
         public static string ToLocalizedString<T>(this T @enum) where T : Enum => 
             string.Join(", ", @enum.ToString().Split(",").Select(flag => Managers.Loc.Get($"ConfigTab.Enums.{typeof(T).Name}.{flag.Trim()}")));
 
@@ -175,6 +152,7 @@ namespace AutoDuty.Data
                     ExternalPlugin.AntiAFK => (@"https://raw.githubusercontent.com/NightmareXIV/MyDalamudPlugins/main/pluginmaster.json", "AntiAfkKick-Dalamud"),
                     ExternalPlugin.Pandora => (@"https://love.puni.sh/ment.json", "PandorasBox"),
                     ExternalPlugin.GlamourLog => (@"https://puni.sh/api/repository/croizat", "GlamourLog"),
+                    ExternalPlugin.Knightshopper => (@"https://puni.sh/api/repository/knightmore", "Knightshopper"),
                     _ => throw new ArgumentOutOfRangeException(nameof(plugin), plugin, null)
                 };
 
@@ -194,17 +172,18 @@ namespace AutoDuty.Data
                     ExternalPlugin.AntiAFK => "Anti-AfkKick",
                     ExternalPlugin.Pandora => "Pandora's Box",
                     ExternalPlugin.GlamourLog => "Glamour Log",
+                    ExternalPlugin.Knightshopper => "Knightshopper",
                     _ => throw new ArgumentOutOfRangeException(nameof(plugin), plugin, null)
                 };
-        }
 
-        public static bool HasInstaller(this ExternalPlugin plugin)
-        {
-            if (plugin == ExternalPlugin.None)
-                return false;
+            public bool HasInstaller()
+            {
+                if (plugin == ExternalPlugin.None)
+                    return false;
 
-            (string url, _) = plugin.GetExternalPluginData();
-            return !string.IsNullOrWhiteSpace(url);
+                (string url, _) = plugin.GetExternalPluginData();
+                return !string.IsNullOrWhiteSpace(url);
+            }
         }
 
         public static bool IsFulfilled(this ConditionType conditionType, params string[] conditionArray)

@@ -122,7 +122,7 @@ namespace AutoDuty.Helpers
         internal static void Invoke(LoopActionConfig<C> config)
         {
             Instance.ActionConfig = (C) config;
-            Instance.Start();
+            Invoke();
         }
 
         internal virtual void Start()
@@ -233,7 +233,7 @@ namespace AutoDuty.Helpers
         }
 
         public virtual void OnCommand(string[] args) => 
-            this.Start();
+            Invoke(Configuration.Overlay.LoopActions.FindConfig<C>() ?? Configuration.Loop.Between.Actions.FindConfig<C>() ?? Configuration.Loop.Pre.Actions.FindConfig<C>() ?? Configuration.Loop.Termination.Actions.FindConfig<C>() ?? new C());
 
         protected void DebugLog(string s) => 
             Svc.Log.Debug($"{this.Name}: {s}");
