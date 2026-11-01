@@ -1,18 +1,23 @@
 name: Build & Publish
 
+# 只在打 tag（v0.0.0.224 这种）时发布；手动触发需要填版本号。
+# 版本号以 tag 为准，不再自动 bump csproj。
 on:
   push:
-    branches: [master]
-    paths-ignore:
-      - '**.md'
+    tags: ['v*']
   workflow_dispatch:
+    inputs:
+      version:
+        description: '要发布的版本号（例如 0.0.0.230）'
+        required: false
+        type: string
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: publish
-  cancel-in-progress: true
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -30,25 +35,33 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      - name: Resolve version from tag
+        shell: pwsh
+        run: |
+          $raw = if ("$env:GITHUB_REF_TYPE" -eq 'tag') { $env:GITHUB_REF_NAME } else { "${{ inputs.version }}" }
+          if (-not $raw) { throw '手动触发时必须填写 version' }
+          $raw = $raw -replace '^[vV]', ''
+          $parts = $raw.Split('.')
+          while ($parts.Length -lt 4) { $parts += '0' }
+          if ($parts.Length -gt 4) { throw "版本号格式错误: $raw" }
+          $ver = $parts -join '.'
+          Write-Host "publishing version $ver"
+          "NEW_VERSION=$ver" >> $env:GITHUB_ENV
+
       - name: Download Dalamud
         shell: pwsh
         run: |
           Invoke-WebRequest https://goatcorp.github.io/dalamud-distrib/latest.zip -OutFile dalamud.zip
           Expand-Archive dalamud.zip -DestinationPath dalamud
 
-      - name: Bump version
-        if: github.ref == 'refs/heads/master'
+      - name: Patch csproj version
         shell: pwsh
         run: |
           $csproj = "AutoDuty/AutoDuty.csproj"
-          $m = Select-String -Path $csproj -Pattern '<Version>(.*?)</Version>'
-          if ($null -eq $m) { throw "找不到 <Version>" }
-          $cur = $m.Matches[0].Groups[1].Value
-          $p = $cur.Split('.')
-          $new = "$([int]$p[0]).$([int]$p[1]).$([int]$p[2]).$([int]$p[3] + 1)"
-          (Get-Content $csproj) -replace "<Version>$cur</Version>", "<Version>$new</Version>" | Set-Content $csproj
-          Write-Host "version: $cur -> $new"
-          "NEW_VERSION=$new" >> $env:GITHUB_ENV
+          $text = Get-Content $csproj -Raw
+          $text = [regex]::Replace($text, '<Version>[^<]+</Version>', "<Version>$env:NEW_VERSION</Version>")
+          Set-Content -Path $csproj -Value $text -NoNewline
+          Select-String -Path $csproj -Pattern '<Version>'
 
       - name: Build
         shell: pwsh
@@ -61,22 +74,16 @@ jobs:
         shell: pwsh
         run: |
           # Dalamud.NET.Sdk 打包时会把插件产物放进 bin/Release/<Name>/latest.zip，
-          # 里面是文件在根目录、带 Localization、且 AssemblyVersion 已按 csproj 写好，
-          # 直接拿来用，不要再把整个输出目录压缩一遍（那样会多套一层目录）。
+          # 里面是文件在根目录、带 Localization、且 AssemblyVersion 已按 csproj 写好。
           $pkg = "AutoDuty/bin/Release/AutoDuty/latest.zip"
           if (-not (Test-Path $pkg)) { throw "找不到 Dalamud 打包产物: $pkg" }
           Copy-Item $pkg "latest.zip" -Force
           Get-Item latest.zip | Select-Object Name, Length
 
-      - name: Commit version bump
-        if: github.ref == 'refs/heads/master'
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add AutoDuty/AutoDuty.csproj
-          git commit -m "chore(release): v${NEW_VERSION} [skip ci]" || echo "nothing to commit"
-          git push
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AutoDuty
+          path: latest.zip
 
       - name: Publish to DalamudPlugins
         if: env.HAS_PAT == 'true'
