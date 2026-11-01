@@ -2,7 +2,7 @@
   "InfoTab": {
     "PunishDiscord": "Punish Discord",
     "Install": "安装",
-    "CombatPluginsNote": "请选择你最习惯的一个，可在设置中切换：",
+    "CombatPluginsNote": "请选择你最习惯的一个（可在 Config 中切换）：",
     "PluginDesc": {
       "BossModFights": "自动处理 Boss 机制与战斗逻辑",
       "VNavMovement": "核心依赖，负责自动寻路与角色移动",

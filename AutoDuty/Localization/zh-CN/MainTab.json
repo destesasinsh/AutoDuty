@@ -196,7 +196,7 @@
       "DeleteHelp": "删除已保存的自定义队列\n按住 Ctrl 键启用",
       "SaveHelp": "使用当前填写的名称保存自定义队列\n按住 Ctrl 键启用"
     },
-    "LimitedJobRestriction": "设限特职无法使用亲信战友、剧情辅助器、冒险者小队或多变迷宫模式。请切换职业，或选择其他模式。",
+    "LimitedJobRestriction": "设限特职无法使用剧情辅助器、亲信战友、冒险者小队或多变迷宫\n请切换职业，或选择其他模式。",
     "CrucibleRestriction": "斗兽奇弈仅限驯兽师参加",
     "CutsceneSkip": {
       "SkipCutscene": "检测到 SkipCutscene，请保持其启用。",

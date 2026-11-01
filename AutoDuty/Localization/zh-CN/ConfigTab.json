@@ -63,7 +63,7 @@
         "UpdatePresetsAuto": "自动更新预设",
         "MaxDistanceRoleBased": "根据职能设置到目标的最大距离",
         "MaxDistance": "到目标的最大距离",
-        "MaxDistanceAoE": "范围攻击时与目标的最大距离",
+        "MaxDistanceAoE": "到目标的最大距离(使用AOE时)",
         "MaxDistanceMelee": "到目标的最大距离 | 近战",
         "MaxDistanceRanged": "到目标的最大距离 | 远程",
         "PositionalRoleBased": "根据玩家职能设置身位",
@@ -209,7 +209,7 @@
         "Apartment": "公寓",
         "Personal_Home": "个人房屋",
         "FC_Estate": "部队房屋",
-        "GC_Barracks": "小队驻地",
+        "GC_Barracks": "冒险者分队军营",
         "Lifestream_Auto": "由 Lifestream 自动选择"
       },
       "SummoningBellLocations": {

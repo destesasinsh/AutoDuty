@@ -72,7 +72,7 @@
     "Retire": {
       "LifestreamNotRegistered": "尚未在 Lifestream 中登记",
       "AdjustForDutyModes": "根据当前副本模式调整返回地点",
-      "AdjustForDutyModesHelp": "冒险者小队模式：返回小队驻地。\n斗兽奇弈模式：不执行返回操作。"
+      "AdjustForDutyModesHelp": "冒险者小队模式：返回冒险者分队军营。\n斗兽奇弈模式：不执行返回操作。"
     },
     "ConsumeItems": {
       "AutoConsumeHelp": "执行此操作时，若相应状态不存在，则使用这些物品",
