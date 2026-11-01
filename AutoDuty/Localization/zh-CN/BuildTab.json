@@ -43,6 +43,6 @@
     "YDiff": "Y-差值: ",
     "ZDiff": "Z-差值: ",
     "Diff": "差值: ",
-    "NoPartyCoherency": "禁用队伍协同"
+    "NoPartyCoherency": "禁用自动靠近坦克"
   }
 }

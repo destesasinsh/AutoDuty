@@ -22,12 +22,12 @@
                                      "Submit":  "提交 Issue"
                                  },
                    "LogLevels":  {
-                                     "Verbose":  "详细 (Verbose)",
-                                     "Debug":  "调试 (Debug)",
-                                     "Information":  "信息 (Info)",
-                                     "Warning":  "警告 (Warn)",
-                                     "Error":  "错误 (Error)",
-                                     "Fatal":  "致命 (Fatal)"
+                                     "Verbose":  "详细",
+                                     "Debug":  "调试",
+                                     "Information":  "信息",
+                                     "Warning":  "警告",
+                                     "Error":  "错误",
+                                     "Fatal":  "致命"
                                  },
                    "AutoScroll":  "自动滚动",
                    "ClearLog":  "清除日志",

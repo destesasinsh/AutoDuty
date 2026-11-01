@@ -2,10 +2,10 @@
   "LoopActions": {
     "Hint": "按住 Ctrl 删除条目",
     "AutoEquip": {
-      "GearSourceHelp": "原版 - 仅使用兵装库(Armory Chest)装备\n装备管理器 - 调用 Gearsetter，可将淘汰装备移至背包\n造型师 - 使用 Stylist 插件设置",
-      "MoveOldToInventory": "将旧物品移至背包",
-      "MoveOldToInventoryHelp": "除武器外，将被替换的装备移至背包。",
-      "RequiresGearsetterOrStylist": "* 兵装库外的物品需要 Gearsetter 或 Stylist 插件"
+      "GearSourceHelp": "原版 - 仅使用兵装库中的装备\nGearsetter - 调用 Gearsetter 推荐装备，可将换下的装备移至背包\nStylist - 按 Stylist 插件的设置选择装备",
+      "MoveOldToInventory": "将换下的装备移至背包",
+      "MoveOldToInventoryHelp": "将换下的装备移至背包，武器除外。",
+      "RequiresGearsetterOrStylist": "* 使用兵装库以外的装备需要 Gearsetter 或 Stylist 插件"
     },
     "Repair": {
       "Self": "自行修理",
@@ -16,7 +16,7 @@
       "PreferredRepairNPC": "首选修理 NPC：",
       "PreferredRepairNPCHelp": "建议将修理 NPC 与传唤铃以及返回位置（如可能）设置在同一地点",
       "NPCSearchHint": "输入 NPC 或区域名称以搜索",
-      "GrandCompanyInn": "冒险者分队军营"
+      "GrandCompanyInn": "所属大国防联军主城的修理商"
     },
     "AutoRetainer": {
       "PreferredSummoningBell": "首选传唤铃位置：",
@@ -25,10 +25,10 @@
       "Seconds": "秒"
     },
     "PlaylistPreLoop": {
-      "Help": "在自定义队列模式下，将装备更换为第一项指定的套装"
+      "Help": "在自定义队列模式下，切换至第一个条目指定的套装"
     },
     "PlaylistSwitchLoop": {
-      "Help": "在自定义队列模式下，将装备更换为下一项指定的套装，并在适用时切换到队列中的下一项副本"
+      "Help": "在自定义队列模式下，当前条目的运行次数用尽后，切换至下一个条目及其指定的套装"
     },
     "TripleTriadSell": {
       "SlotsOccupied": "占用格数",
@@ -43,31 +43,31 @@
       "UseGCAetheryteTicket": "使用大国防联军传送券"
     },
     "Armoire": {
-      "Help": "将在循环间将物品存入收藏柜"
+      "Help": "在两次循环之间将物品存入收藏柜"
     },
     "Glamour": {
-      "Help": "将在循环间将物品存入幻化衣橱"
+      "Help": "在两次循环之间将装备存入投影台"
     },
     "Desynth": {
       "OnlySkillUps": "仅提升分解熟练度时分解",
       "ItemLevelLimit": "物品等级限制",
-      "ItemLevelLimitHelp": "当你的分解技能达到物品等级 + 此限制时，停止分解该物品。",
-      "NQOnly": "只分解NQ物品",
+      "ItemLevelLimitHelp": "当分解技能熟练度达到该物品的物品等级加上此限制值时，停止分解该物品。",
+      "NQOnly": "分解所得物品均为普通品质",
       "ProtectGearsets": "保护套装",
-      "ProtectGearsetterUpgrades": "保护 Gearsetter 推荐的升级装备，避免被自动分解",
-      "ProtectGearsetterUpgradesHelp": "即使这些物品尚未装备，也会保护 Gearsetter 为你的任一套装推荐的升级装备。需要 Gearsetter 插件。",
+      "ProtectGearsetterUpgrades": "保护 Gearsetter 推荐的更优装备",
+      "ProtectGearsetterUpgradesHelp": "Gearsetter 为任一套装推荐的更优装备，即使尚未加入套装，也不会被自动分解。需要 Gearsetter 插件。",
       "Categories": "分解类别"
     },
     "Coffers": {
-      "Help": "AutoDuty 将在每次循环间开启装备箱（例如骑士武器箱）",
-      "OpenCoffersWithGearset": "使用套装开启宝箱：",
+      "Help": "AutoDuty 将在两次循环之间开启装备箱，包括骑士武具等物品",
+      "OpenCoffersWithGearset": "使用指定套装开启装备箱：",
       "CurrentGearset": "当前套装",
       "UseBlacklist": "使用黑名单",
-      "UseBlacklistHelp": "可选择禁止某些宝箱自动开启。",
-      "SelectCoffer": "选择宝箱",
-      "CofferName": "宝箱名称",
-      "CofferNameHint": "开始输入宝箱名称以搜索",
-      "AddCoffer": "添加宝箱"
+      "UseBlacklistHelp": "可选择禁止某些装备箱自动开启。",
+      "SelectCoffer": "选择装备箱",
+      "CofferName": "装备箱名称",
+      "CofferNameHint": "开始输入装备箱名称以搜索",
+      "AddCoffer": "添加装备箱"
     },
     "Retire": {
       "LifestreamNotRegistered": ""
@@ -86,7 +86,7 @@
       "ExecuteCommandsHelp": "执行命令\n例如：{0}"
     },
     "Wait": {
-      "WaitTime": "（毫秒）等待时间",
+      "WaitTime": "等待时间（毫秒）",
       "WaitTimeHelp": "等待 X 毫秒后继续执行。",
       "WaitOnPlugins": "等待指定插件完成其操作"
     }

@@ -37,7 +37,7 @@
     "LevelingModeStatus": "当前练级状态：等级 {0} (装等 {1})",
     "SelectSupportTrust": "请选择剧情辅助器、亲信战友、冒险者小队或常规模式中的一项\n以填充任务列表",
     "CurrentGearset": "当前套装",
-    "CurrentVariantPath": "当前多变迷宫路径",
+    "CurrentVariantPath": "当前多变迷宫路线",
     "DungeonsRemaining": "剩余副本数：{0}",
     "DungeonsRemainingExplanation": "这是在达到每日 100 次副本上限前，预计还能运行的副本数量。",
     "Busy": "忙碌中...",
@@ -58,7 +58,7 @@
       "Raid": "大型任务（排本）",
       "Variant": "多变迷宫",
       "NoviceHall": "初学者学堂",
-      "Crucible": "熔炉"
+      "Crucible": "斗兽奇弈"
     },
     "LevelingModes": {
       "None": "无",
@@ -67,45 +67,45 @@
       "Trust_Solo": "玩家练级"
     },
     "Crucible": {
-      "Team": "熔炉队伍",
-      "Familiars": "使魔 {0}/{1}",
-      "Familiar": "使魔",
-      "Rank": "等级",
-      "CustomFull": "队伍已满（最多 {0} 个）\n取消勾选一个后才能选择其他使魔",
-      "ClearRanks": "清除已保存的等级",
-      "ClearRanksHelp": "忘记已保存的等级\n按住 Ctrl 点击",
-      "NoFamiliars": "尚未读取到任何使魔。请在 Lauda 处打开队伍或图鉴，以便 AutoDuty 读取数据。",
-      "Menus": "棋盘菜单",
-      "TableLegend": "阴影部分：此模式选择的队伍 · 将鼠标悬停在名称上查看属性",
-      "TableLegendCustom": "勾选部分：你选择的队伍 · 将鼠标悬停在名称上查看属性",
-      "NotSeen": "尚未读取等级\n下次设置队伍时从图鉴读取",
+      "Team": "斗兽奇弈编队",
+      "Familiars": "魔兽 {0}/{1}",
+      "Familiar": "魔兽",
+      "Rank": "兽级",
+      "CustomFull": "编队已满（最多 {0} 只）\n取消勾选一只后才能选择其他魔兽",
+      "ClearRanks": "清除已保存的兽级",
+      "ClearRanksHelp": "清除已保存的兽级数据\n按住 Ctrl 键点击",
+      "NoFamiliars": "尚未读取到魔兽数据。请与劳妲对话，打开魔兽编队或魔兽图鉴，以便 AutoDuty 读取数据。",
+      "Menus": "奇盘菜单",
+      "TableLegend": "高亮行：此模式选用的魔兽 · 将鼠标悬停在名称上查看属性",
+      "TableLegendCustom": "已勾选：自定义编队中的魔兽 · 将鼠标悬停在名称上查看属性",
+      "NotSeen": "尚未读取兽级\n下次编队时将从魔兽图鉴读取",
       "Modes": {
         "Recommended": "推荐",
         "Leveling": "练级",
         "Custom": "自定义"
       },
       "ModesHelp": {
-        "Recommended": "选择等级最高的使魔\n等级相同时优先选择属性更好的",
-        "Leveling": "选择等级最低的使魔，优先选择经验最少的\n相同顺序也用于决定每场战斗出战的使魔",
-        "Custom": "选择下方勾选的使魔\n最多 10 个"
+        "Recommended": "选择兽级最高的魔兽\n兽级相同时优先选择属性更好的",
+        "Leveling": "选择兽级最低的魔兽\n兽级相同时优先选择经验值最少的",
+        "Custom": "选择下方勾选的魔兽\n数量上限取决于当前奇盘"
       },
       "Toggles": {
-        "FightPicks": "战斗选择",
-        "Loot": "战利品与结果",
-        "Treasure": "宝藏",
+        "FightPicks": "选择出战魔兽",
+        "Loot": "领取战利品并确认结果",
+        "Treasure": "寻宝",
         "Shop": "商店",
-        "Rest": "营地休息",
-        "Items": "治疗物品",
-        "MenusWithoutRun": "不运行 AutoDuty，仅运行菜单（测试）"
+        "Rest": "帐篷休息",
+        "Items": "使用恢复道具",
+        "MenusWithoutRun": "仅自动操作菜单（测试）"
       },
       "TogglesHelp": {
-        "FightPicks": "每场战斗最多选择 3 个使魔并开始战斗\n被击倒的使魔会跳过",
-        "Loot": "战斗后获取所有战利品\n在结果画面点击继续",
-        "Treasure": "获取一件宝藏：优先治疗，其次防御，最后伤害",
-        "Shop": "使用金币购买治疗物品、Beast Gear，然后购买一份饲料\n完成后离开商店",
-        "Rest": "让最多 2 个生命值低于 60% 的使魔休息\n如果没有选择使魔，则获得 90% 的自我治疗",
-        "Items": "生命值较低时使用治疗物品\n战斗中低于 40% · 棋盘上低于 60%",
-        "MenusWithoutRun": "用于无路径测试\n与 Lauda 对话设置队伍、挑战棋盘并开始\n在棋盘上，以上菜单会运行，而你可以自行移动"
+        "FightPicks": "每场战斗最多选择 3 只魔兽并开始战斗\n跳过无法战斗的魔兽",
+        "Loot": "战斗后领取所有战利品\n在结算界面点击继续",
+        "Treasure": "寻宝时选择一件道具：优先恢复类，其次防御类，最后攻击类",
+        "Shop": "依次购买恢复道具、斗兽装备，最后购买一份食料\n购买完成后离开商店",
+        "Rest": "最多选择 2 只体力低于 60% 的魔兽在帐篷休息\n若未选择魔兽，则恢复自身 90% 的体力",
+        "Items": "自身体力较低时使用恢复道具\n战斗中低于 40% · 奇盘上低于 60%",
+        "MenusWithoutRun": "用于无路径测试\n与劳妲对话后自动编队并开始挑战奇盘\n进入奇盘后自行移动，插件按上述设置自动操作菜单"
       }
     },
     "Playlist": {
