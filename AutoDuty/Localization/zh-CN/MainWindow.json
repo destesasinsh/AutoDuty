@@ -2,6 +2,7 @@
     "MainWindow":  {
                        "Tabs":  {
                                     "Stats":  "统计",
+                                    "Mentor":  "导随",
                                     "Main":  "主界面",
                                     "Build":  "创建",
                                     "Paths":  "配置",

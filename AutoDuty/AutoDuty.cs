@@ -19,6 +19,7 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using ECommons;
 using ECommons.Automation;
+using ECommons.ChatMethods;
 using ECommons.DalamudServices;
 using ECommons.ExcelServices;
 using ECommons.GameFunctions;
@@ -364,6 +365,7 @@ public sealed class AutoDuty : IDalamudPlugin
             this.squadronManager = new SquadronManager(this.taskManager);
             this.variantManager  = new VariantManager(this.taskManager);
             this.crucibleManager = new CrucibleManager(this.taskManager);
+            MentorRouletteManager.Initialize();
             this.actions         = new ActionsManager(Plugin, this.taskManager);
             this.overrideCamera   = new OverrideCamera();
             this.Overlay          = new Overlay();
@@ -564,6 +566,37 @@ public sealed class AutoDuty : IDalamudPlugin
 
                                                                            this.LevelingModeEnum = LevelingMode.None;
                                                                        }),
+                (["mentor"], "controls mentor roulette automation (start / stop / status / cancel)", argsArray =>
+                                                                                                        {
+                                                                                                            string sub = argsArray.Length > 1 ? argsArray[1].ToLowerInvariant() : "status";
+
+                                                                                                            switch (sub)
+                                                                                                            {
+                                                                                                                case "start":
+                                                                                                                    MentorRouletteManager.Start();
+                                                                                                                    ConfigurationProfileV2.Save();
+                                                                                                                    break;
+                                                                                                                case "stop":
+                                                                                                                    MentorRouletteManager.Stop("chat command");
+                                                                                                                    ConfigurationProfileV2.Save();
+                                                                                                                    break;
+                                                                                                                case "cancel":
+                                                                                                                    MentorRouletteManager.CancelLeave();
+                                                                                                                    break;
+                                                                                                                case "dump":
+                                                                                                                {
+                                                                                                                    string dump = RouletteQueueHelper.DumpList();
+                                                                                                                    Svc.Log.Info(dump);
+                                                                                                                    foreach (string line in dump.Split('\n').Take(20))
+                                                                                                                        ChatPrinter.Yellow(line);
+
+                                                                                                                    break;
+                                                                                                                }
+                                                                                                                default:
+                                                                                                                    ChatPrinter.Yellow($"[AutoDuty] {Loc.Get("MentorTab.Title")}: {MentorRouletteManager.StateText} / {MentorRouletteManager.StatusText}");
+                                                                                                                    break;
+                                                                                                            }
+                                                                                                        }),
             ];
             this.commands = [.. this.commands.Concat(ActiveHelper.activeHelpers.Where(iah => iah.Commands != null).
                                                                   Select<IActiveHelper, (string[], string, Action<string[]>)>(iah => (iah.Commands!, iah.CommandDescription!, iah.OnCommand)))];
@@ -2183,6 +2216,7 @@ public sealed class AutoDuty : IDalamudPlugin
     {
         GitHubHelper.Dispose();
         this.StopAndResetAll();
+        MentorRouletteManager.Dispose();
         DailyRoutinesIpc.Dispose();
         MultiboxUtility.Config?.MultiBox =  false;
         Svc.Framework.Update             -= this.Framework_Update;

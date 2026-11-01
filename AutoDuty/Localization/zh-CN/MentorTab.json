@@ -1,0 +1,54 @@
+{
+  "MentorTab": {
+    "Title": "导随",
+    "State": "状态",
+    "Enable": "启用导随自动排队",
+    "Start": "开始",
+    "Stop": "停止",
+    "CancelLeave": "取消退出（这个本我自己打）",
+    "StoppedByUser": "用户停止",
+    "Stats": "已排 {0} 次 / 进本 {1} 次 / 完成 {2} 次 / 退出 {3} 次 / 连续退本 {4}",
+    "PenaltyWaitUntil": "正在等待排本惩罚结束：{0}",
+
+    "Mode": "模式",
+    "Mode.AllSupported": "只要是支持的副本都自动跑",
+    "Mode.AllSupportedHelp": "有 AutoDuty 路径的副本自动攻略，没有路径的副本退出（或挂机）。",
+    "Mode.Specified": "只跑我勾选的副本",
+    "Mode.SpecifiedHelp": "只有下面列表里勾选的副本会自动攻略，其余副本一律退出。",
+
+    "UnsupportedAction": "排到不支持的副本时",
+    "UnsupportedAction.Leave": "退出副本",
+    "UnsupportedAction.Keep": "留在本里挂机",
+    "UnsupportedAction.Help": "退本会触发 30 分钟“放弃任务”惩罚；挂机不吃惩罚，但一轮耗时长很多。",
+
+    "Whitelist": "可选副本（{0}）",
+    "Whitelist.Search": "搜索副本…",
+    "Whitelist.AddAll": "全部加入",
+    "Whitelist.Clear": "清空",
+    "Whitelist.Count": "已选 {0} / {1}",
+
+    "Settings": "行为设置",
+    "Settings.DelayBeforeJudge": "进本后判定延迟（毫秒）",
+    "Settings.LeaveGrace": "退本前宽限（秒）",
+    "Settings.LeaveCombatTimeout": "等待脱战超时（秒）",
+    "Settings.LeaveTimeout": "退本流程超时（秒）",
+    "Settings.RequeueDelay": "退本后重排延迟（秒）",
+    "Settings.MaxLeaves": "连续退本 N 次后停止（0 = 不限）",
+    "Settings.PenaltyGuard": "惩罚保护（检测到排本惩罚时暂停）",
+    "Settings.PenaltyWait": "惩罚等待时长（分钟）",
+    "Settings.UseLoopActions": "执行轮次间动作（修理 / 分解 / 雇员）",
+    "Settings.UseLoopActionsHelp": "关闭 = BareMode：只走路径，不跑前置/轮次间/结束动作。",
+    "Settings.ChatNotify": "在聊天窗口提示",
+    "Settings.RouletteRow": "随机任务行号（ContentRoulette）",
+    "Settings.RouletteRowHelp": "当前：{0}",
+
+    "State.Stopped": "已停止",
+    "State.Queueing": "排队中",
+    "State.Judging": "判定中",
+    "State.Grace": "即将退出",
+    "State.Leaving": "退本中",
+    "State.Cooldown": "冷却中",
+    "State.Running": "攻略中",
+    "State.Keeping": "挂机 / 手动"
+  }
+}
