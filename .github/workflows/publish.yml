@@ -1,0 +1,114 @@
+name: Build & Publish
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    env:
+      META_REPO: destesasinsh/DalamudPlugins
+      HAS_PAT: ${{ secrets.DALAMUDPLUGINS_PAT != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Download Dalamud
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://goatcorp.github.io/dalamud-distrib/latest.zip -OutFile dalamud.zip
+          Expand-Archive dalamud.zip -DestinationPath dalamud
+
+      - name: Bump version
+        if: github.ref == 'refs/heads/master'
+        shell: pwsh
+        run: |
+          $csproj = "AutoDuty/AutoDuty.csproj"
+          $m = Select-String -Path $csproj -Pattern '<Version>(.*?)</Version>'
+          if ($null -eq $m) { throw "找不到 <Version>" }
+          $cur = $m.Matches[0].Groups[1].Value
+          $p = $cur.Split('.')
+          $new = "$([int]$p[0]).$([int]$p[1]).$([int]$p[2]).$([int]$p[3] + 1)"
+          (Get-Content $csproj) -replace "<Version>$cur</Version>", "<Version>$new</Version>" | Set-Content $csproj
+          Write-Host "version: $cur -> $new"
+          "NEW_VERSION=$new" >> $env:GITHUB_ENV
+
+      - name: Build
+        shell: pwsh
+        run: |
+          $lib = (Join-Path $env:GITHUB_WORKSPACE "dalamud") + "/"
+          dotnet build AutoDuty/AutoDuty.csproj -c Release -p:DalamudLibPath=$lib
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Pack latest.zip
+        shell: pwsh
+        run: |
+          $out = "AutoDuty/bin/Release"
+          if (-not (Test-Path $out)) { throw "构建输出不存在: $out" }
+          $json = Join-Path $out "AutoDuty.json"
+          $data = Get-Content $json -Raw | ConvertFrom-Json
+          $data | Add-Member -NotePropertyName AssemblyVersion -NotePropertyValue $env:NEW_VERSION -Force
+          $data | ConvertTo-Json -Depth 8 | Set-Content $json -Encoding utf8
+          Compress-Archive -Path "$out/*" -DestinationPath "latest.zip" -Force
+          Get-Item latest.zip | Select-Object Name, Length
+
+      - name: Commit version bump
+        if: github.ref == 'refs/heads/master'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add AutoDuty/AutoDuty.csproj
+          git commit -m "chore(release): v${NEW_VERSION} [skip ci]" || echo "nothing to commit"
+          git push
+
+      - name: Publish to DalamudPlugins
+        if: env.HAS_PAT == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.DALAMUDPLUGINS_PAT }}
+        run: |
+          set -euo pipefail
+          TAG="AutoDuty-v${NEW_VERSION}"
+          echo "publishing $TAG"
+
+          if gh release view "$TAG" --repo "$META_REPO" >/dev/null 2>&1; then
+            gh release upload "$TAG" latest.zip --repo "$META_REPO" --clobber
+          else
+            gh release create "$TAG" latest.zip --repo "$META_REPO" --title "$TAG" --target main --generate-notes
+          fi
+
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${META_REPO}.git" meta
+          cd meta
+          python - "$NEW_VERSION" <<'PY'
+          import json, sys, pathlib
+          version = sys.argv[1]
+          path = pathlib.Path("plugins/AutoDuty/AutoDuty.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          data["AssemblyVersion"] = version
+          path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          print("manifest ->", version)
+          PY
+          python generate_pluginmaster.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore(publish): AutoDuty v${NEW_VERSION}" || echo "nothing to commit"
+          git push
