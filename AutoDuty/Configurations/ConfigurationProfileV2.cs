@@ -35,17 +35,9 @@ public class ConfigurationProfileV2
         this.DutyConfig = new DutyConfigConfig(this);
         this.Loop       = new LoopConfig(this);
         this.Meta       = new MetaConfig(this);
-        this.MentorRoulette = new MentorRouletteConfig();
     }
 
     public MetaConfig Meta { get; set; }
-
-    /// <summary>导随（导师随机任务）自动化配置，见 MentorRouletteHelper。</summary>
-    public MentorRouletteConfig MentorRoulette
-    {
-        get => field ??= new MentorRouletteConfig();
-        set => field = value;
-    }
 
     [JsonObject(MemberSerialization.OptOut)]
     public class MetaConfig(ConfigurationProfileV2 config)

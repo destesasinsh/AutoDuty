@@ -1,4 +1,4 @@
-namespace AutoDuty.Data
+﻿namespace AutoDuty.Data
 {
     using System;
     using System.Collections.Generic;
@@ -194,30 +194,6 @@ namespace AutoDuty.Data
         {
             Looping = 0,
             Playlist = 1
-        }
-
-        public enum MentorRouletteMode : byte
-        {
-            AllSupported = 0,
-            Specified    = 1,
-        }
-
-        public enum MentorUnsupportedAction : byte
-        {
-            LeaveDuty = 0,
-            KeepDuty  = 1,
-        }
-
-        public enum MentorRouletteState : byte
-        {
-            Stopped  = 0,
-            Queueing = 1,
-            Judging  = 2,
-            Grace    = 3,
-            Leaving  = 4,
-            Cooldown = 5,
-            Running  = 6,
-            Keeping  = 7,
         }
 
         [Flags]

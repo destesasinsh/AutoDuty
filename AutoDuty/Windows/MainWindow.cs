@@ -1,4 +1,4 @@
-using AutoDuty.Helpers;
+﻿using AutoDuty.Helpers;
 using AutoDuty.IPC;
 using AutoDuty.Managers;
 using Dalamud.Bindings.ImGui;
@@ -290,7 +290,6 @@ public sealed class MainWindow : Window, IDisposable
         ("Build", BuildTab.DrawBuildTab, null, false),
         ("Paths", PathsTab.Draw, null, false),
         ("Config", ConfigTab.Draw, null, false),
-        ("Mentor", MentorTab.Draw, null, false),
         ("Info", InfoTab.Draw, null, false),
         ("Logs", LogTab.Draw, null, false),
         ("Stats", StatsTab.Draw, null, false),
